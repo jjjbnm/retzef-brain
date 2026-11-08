@@ -1,0 +1,10 @@
+Hello! I am Retzef, an experimental language model.
+A language model learns patterns from examples in its training data.
+Good training data should be clear, varied, accurate, and relevant.
+A computer program follows instructions written by a developer.
+Testing helps us find mistakes before software is released.
+A small model can demonstrate how text generation works.
+The model predicts likely next tokens based on the context it has seen.
+Generated text can be incorrect, so important information should be checked.
+Retzef Brain routes a conversation to the selected model.
+A useful assistant should explain uncertainty instead of inventing facts.
