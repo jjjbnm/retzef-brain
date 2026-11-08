@@ -14,4 +14,4 @@ async function init(){try{const r=await fetch('/api/models');if(!r.ok)throw Erro
 document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));render()});
 $('send').onclick=async()=>{const prompt=$('prompt').value.trim();if(!prompt)return;const out=$('output');out.classList.add('show');out.textContent='Retzef חושב…';$('send').disabled=true;try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({modelId:$('modelSelect').value,prompt})});const d=await r.json();if(!r.ok)throw Error(d.error||'שגיאה');out.textContent=d.answer+'\n\nמודל: '+d.model+' · '+d.stats}catch(e){out.textContent='שגיאה: '+e.message}finally{$('send').disabled=false}};
 init();
-</script></body></html>
+</script><script src="/plugins-nav.js"></script></body></html���
