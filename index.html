@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b14">
+  <meta name="description" content="Retzef Brain — מעבדת מודלים ניסיונית שנבנית מאפס עבור מערכת Retzef.">
+  <title>Retzef Brain — בונים את הדור הבא</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="Retzef Brain home"><span class="brand-mark">R<span>.</span></span><span>RETZEF <b>BRAIN</b></span></a>
+    <nav class="nav"><a href="#models" data-i18n="navModels">מודלים</a><a href="#technology" data-i18n="navTech">טכנולוגיה</a><a href="#roadmap" data-i18n="navRoadmap">מפת דרכים</a><a href="#about" data-i18n="navAbout">אודות</a></nav>
+    <div class="nav-actions"><button id="language" class="lang-button" type="button">EN</button><a class="github-link" href="https://github.com/jjjbnm/retzef-brain" target="_blank" rel="noreferrer">GitHub ↗</a><button class="menu-button" id="menu" aria-label="פתח תפריט">☰</button></div>
+  </header>
+  <main id="home">
+    <section class="hero section-wrap">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="pulse"></span><span data-i18n="eyebrow">מעבדת בינה מלאכותית עצמאית</span></div>
+        <h1 data-i18n="heroTitle">מוח חדש.<br><span>אפשרויות חדשות.</span></h1>
+        <p class="hero-text" data-i18n="heroText">Retzef Brain הוא פרויקט ניסיוני לבניית מודלים לשוניים מאפס — צעד אחר צעד, בקוד פתוח.</p>
+        <div class="hero-buttons"><a class="button primary" href="#models" data-i18n="explore">גלו את המודלים <span>←</span></a><a class="button secondary" href="https://github.com/jjjbnm/retzef-brain" target="_blank" rel="noreferrer" data-i18n="source">צפו בקוד ↗</a></div>
+        <div class="hero-meta"><span><i class="dot green"></i><span data-i18n="openSource">קוד פתוח</span></span><span><i class="dot violet"></i>JavaScript</span><span><i class="dot blue"></i>Experimental AI</span></div>
+      </div>
+      <div class="brain-visual" aria-label="Abstract neural network illustration">
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="orbit orbit-c"></div>
+        <div class="brain-core"><div class="core-inner">R<span>.</span></div></div>
+        <span class="node node-1"></span><span class="node node-2"></span><span class="node node-3"></span><span class="node node-4"></span><span class="node node-5"></span><span class="node node-6"></span>
+        <div class="visual-label label-top">NEURAL SYSTEM <b>0.5</b></div><div class="visual-label label-bottom">LEARNING FROM SCRATCH <span>✳</span></div>
+      </div>
+      <div class="scroll-cue"><span></span><span data-i18n="scroll">גללו כדי לגלות</span></div>
+    </section>
+    <section class="stats section-wrap">
+      <div><strong>3</strong><span data-i18n="statFamilies">משפחות מודלים</span></div><div><strong>9</strong><span data-i18n="statModels">פרופילי מודלים ניסיוניים</span></div><div><strong>JS</strong><span data-i18n="statStack">מימוש ב־JavaScript</span></div><div><strong>∞</strong><span data-i18n="statIdeas">רעיונות להמשך</span></div>
+    </section>
+    <section class="section-wrap content-section" id="models">
+      <div class="section-heading"><div><div class="eyebrow">01 / MODEL CATALOG</div><h2 data-i18n="modelsTitle">הכירו את המשפחה</h2></div><p data-i18n="modelsIntro">שלוש גישות ניסיוניות, כל אחת עם מטרה אחרת. בחרו כרטיס כדי לקרוא על הארכיטקטורה.</p></div>
+      <div class="model-grid">
+        <article class="model-card"><div class="card-top"><span class="model-icon icon-gold">N</span><span class="tag">N-GRAM</span></div><h3>Retzef Text</h3><p data-i18n="ngramDesc">מודלי טקסט קטנים המבוססים על רצפי מילים ותבניות שנלמדו מקורפוסים נפרדים.</p><div class="card-bottom"><span>Hebrew · General · Code</span><a href="https://github.com/jjjbnm/retzef-brain/blob/main/docs/models.md" target="_blank" rel="noreferrer" aria-label="N-gram documentation">↗</a></div></article>
+        <article class="model-card featured"><div class="card-top"><span class="model-icon icon-purple">Ψ</span><span class="tag tag-purple">NEURAL</span></div><h3>Retzef Neural</h3><p data-i18n="neuralDesc">רשת עצבית קטנה עם embeddings, שכבה חבויה וחיזוי הטוקן הבא באמצעות softmax.</p><div class="card-bottom"><span>Hebrew · General · Code</span><a href="https://github.com/jjjbnm/retzef-brain/blob/main/docs/neural-models.md" target="_blank" rel="noreferrer" aria-label="Neural documentation">↗</a></div></article>
+        <article class="model-card"><div class="card-top"><span class="model-icon icon-blue">字</span><span class="tag tag-blue">SUBWORD</span></div><h3>Retzef Subword</h3><p data-i18n="subwordDesc">מודל עצבי ניסיוני שלומד תווים וחלקי מילים, כולל רווחים וסימני פיסוק.</p><div class="card-bottom"><span>Hebrew · General · Code</span><a href="https://github.com/jjjbnm/retzef-brain/blob/main/docs/subword-models.md" target="_blank" rel="noreferrer" aria-label="Subword documentation">↗</a></div></article>
+      </div>
+      <p class="notice"><span>ⓘ</span><span data-i18n="honestNote">חשוב לדעת: אלו אבות־טיפוס לימודיים קטנים, לא מודלים ברמת ChatGPT. התשובות עשויות להיות חוזרות או שגויות.</span></p>
+    </section>
+    <section class="tech-section" id="technology"><div class="section-wrap tech-layout"><div><div class="eyebrow">02 / UNDER THE HOOD</div><h2 data-i18n="techTitle">מתחילים מהיסודות.<br><span>לומדים דרך בנייה.</span></h2><p data-i18n="techText">המטרה היא להבין ולבנות את אבני הבניין של מודל שפה: טוקניזציה, embeddings, חיזוי, אימון ושמירת משקולות.</p><a class="text-link" href="https://github.com/jjjbnm/retzef-brain/tree/main/docs" target="_blank" rel="noreferrer" data-i18n="readDocs">לכל התיעוד ב־GitHub ↗</a></div><div class="tech-stack"><div class="stack-row"><span>01</span><b>Tokenization</b><small data-i18n="stack1">פירוק טקסט ליחידות למידה</small><i>✓</i></div><div class="stack-row"><span>02</span><b>Embeddings</b><small data-i18n="stack2">ייצוג מספרי של יחידות</small><i>✓</i></div><div class="stack-row"><span>03</span><b>Neural Network</b><small data-i18n="stack3">חישוב וחיזוי הטוקן הבא</small><i>✓</i></div><div class="stack-row"><span>04</span><b>Training</b><small data-i18n="stack4">Backpropagation + SGD</small><i>✓</i></div><div class="stack-row future"><span>05</span><b>Transformer</b><small data-i18n="stack5">כיוון מחקר עתידי</small><em data-i18n="planned">בתכנון</em></div></div></div></section>
+    <section class="section-wrap content-section roadmap" id="roadmap"><div class="section-heading"><div><div class="eyebrow">03 / THE ROAD AHEAD</div><h2 data-i18n="roadTitle">המסע רק מתחיל</h2></div><p data-i18n="roadIntro">בונים בהדרגה, בודקים כל שלב ומשפרים על בסיס תוצאות.</p></div><div class="road-grid"><div class="road-item done"><span>01</span><h3 data-i18n="road1">בסיס המנוע</h3><p data-i18n="road1d">קטלוג, רישום מודלים ותמיכה בהוראות מותאמות.</p><b>COMPLETED</b></div><div class="road-item done"><span>02</span><h3 data-i18n="road2">מודלים עצביים</h3><p data-i18n="road2d">אימון מודלים קטנים מאפס ושמירת משקולות.</p><b>COMPLETED</b></div><div class="road-item active"><span>03</span><h3 data-i18n="road3">חיבור למנוע</h3><p data-i18n="road3d">ממשק אחיד לבחירה, טעינה והרצת מודלים.</p><b>UP NEXT</b></div><div class="road-item"><span>04</span><h3 data-i18n="road4">מחקר מתקדם</h3><p data-i18n="road4d">נתונים טובים יותר, הערכה וארכיטקטורות חדשות.</p><b>FUTURE</b></div></div></section>
+    <section class="cta-section section-wrap" id="about"><div class="cta-glow"></div><div class="eyebrow">BUILDING IN PUBLIC</div><h2 data-i18n="ctaTitle">רוצים לראות איך זה נבנה?</h2><p data-i18n="ctaText">הקוד, התיעוד וההתקדמות זמינים במאגר הפתוח.</p><a class="button primary" href="https://github.com/jjjbnm/retzef-brain" target="_blank" rel="noreferrer" data-i18n="githubCta">פתחו את Retzef Brain ב־GitHub ↗</a></section>
+  </main>
+  <footer class="footer"><a class="brand" href="#home"><span class="brand-mark">R<span>.</span></span><span>RETZEF <b>BRAIN</b></span></a><span data-i18n="footer">פרויקט ניסיוני בקוד פתוח · נבנה בסקרנות.</span><a href="https://github.com/jjjbnm/retzef-brain" target="_blank" rel="noreferrer">GitHub ↗</a></footer>
+  <script src="/app.js"></script>
+</body></html>
