@@ -31,16 +31,17 @@ export function validOwnerId(value) {
   return typeof value === "string" && /^[a-zA-Z0-9_-]{16,80}$/.test(value);
 }
 
-export async function createApiKey(ownerId, name) {
+export async function createApiKey(ownerId, name, model = "retzef-code") {
   const id = randomBytes(10).toString("hex");
   const secret = "rzf_live_" + randomBytes(32).toString("hex");
   const createdAt = Date.now();
-  const record = { id, ownerId, name, createdAt, expiresAt: createdAt + TTL_SECONDS * 1000, last4: secret.slice(-4), prefix: "rzf_live_" };
+  const safeModel = typeof model === "string" && /^retzef-[a-z0-9-]{1,80}$/.test(model) ? model : "retzef-code";
+  const record = { id, ownerId, name, model: safeModel, createdAt, expiresAt: createdAt + TTL_SECONDS * 1000, last4: secret.slice(-4), prefix: "rzf_live_" };
   const hash = hashKey(secret);
   await command("SET", PREFIX + hash, JSON.stringify(record), "EX", String(TTL_SECONDS));
   await command("SADD", ownerSet(ownerId), hash);
   await command("EXPIRE", ownerSet(ownerId), String(TTL_SECONDS));
-  return { apiKey: secret, key: { id, name, createdAt, expiresAt: record.expiresAt, last4: record.last4, prefix: record.prefix } };
+  return { apiKey: secret, key: { id, name, model: safeModel, createdAt, expiresAt: record.expiresAt, last4: record.last4, prefix: record.prefix } };
 }
 
 export async function listApiKeys(ownerId) {
@@ -51,7 +52,7 @@ export async function listApiKeys(ownerId) {
     if (!raw) { await command("SREM", ownerSet(ownerId), hash); return null; }
     try {
       const r = JSON.parse(raw);
-      return r.ownerId === ownerId ? { id: r.id, name: r.name, createdAt: r.createdAt, expiresAt: r.expiresAt, last4: r.last4, prefix: r.prefix } : null;
+      return r.ownerId === ownerId ? { id: r.id, name: r.name, model: r.model || "retzef-code", createdAt: r.createdAt, expiresAt: r.expiresAt, last4: r.last4, prefix: r.prefix } : null;
     } catch { return null; }
   }));
   return records.filter(Boolean).sort((a,b) => b.createdAt-a.createdAt);
@@ -81,6 +82,6 @@ export async function verifyApiKey(secret) {
   try {
     const record = JSON.parse(raw);
     if (!record.ownerId || record.expiresAt <= Date.now()) return null;
-    return { id: record.id, ownerId: record.ownerId, name: record.name };
+    return { id: record.id, ownerId: record.ownerId, name: record.name, model: record.model || null };
   } catch { return null; }
 }

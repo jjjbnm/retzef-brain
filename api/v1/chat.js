@@ -16,7 +16,8 @@ export default async function handler(req, res) {
     if (!identity) return res.status(401).json({ error: { message: "Invalid or revoked API key", type: "authentication_error" } });
     let body = req.body;
     if (typeof body === "string") { try { body = JSON.parse(body); } catch { return res.status(400).json({ error: { message: "Invalid JSON", type: "invalid_request_error" } }); } }
-    const modelId = typeof body?.model === "string" ? body.model : "retzef-code";
+    const modelId = identity.model || (typeof body?.model === "string" ? body.model : "retzef-code");
+    if (identity.model && typeof body?.model === "string" && body.model !== identity.model) return res.status(400).json({ error: { message: "This API key is assigned to " + identity.model + ". Create a separate key to use another model.", type: "invalid_request_error" } });
     const messages = Array.isArray(body?.messages) ? body.messages : [];
     const prompt = messages.filter(m => m && typeof m.content === "string").map(m => String(m.role || "user") + ": " + m.content).join("\n").slice(-3000);
     if (!prompt) return res.status(400).json({ error: { message: "messages must contain at least one text message", type: "invalid_request_error" } });

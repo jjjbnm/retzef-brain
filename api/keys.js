@@ -13,7 +13,8 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
       const name = typeof body?.name === "string" ? body.name.trim().slice(0, 40) : "My Retzef App";
       if (!name) return res.status(400).json({ error: "Key name is required." });
-      const result = await createApiKey(ownerId, name);
+      const model = typeof body?.model === "string" && /^retzef-[a-z0-9-]{1,80}$/.test(body.model) ? body.model : "retzef-code";
+      const result = await createApiKey(ownerId, name, model);
       return res.status(201).json({ ok: true, ...result, warning: "Copy this API key now. Its full value is never stored or shown again." });
     }
     if (typeof body?.id !== "string") return res.status(400).json({ error: "Key ID is required." });
