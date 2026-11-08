@@ -1,11 +1,19 @@
 # Retzef Brain
 
-Retzef Brain is the home of Retzef's original experimental language models and plugin orchestration.
+Retzef Brain is the home of Retzef's experimental language models and model-independent plugin orchestration.
 
 Production: https://retzef-brain.vercel.app
 
-## Models
-Nine Retzef-owned experimental profiles: Hebrew, General and Code, each with N-gram, Neural and Subword architectures.
+## Retzef Code
+The first Code Intelligence layer is available through `POST /api/code-tools`.
+Actions:
+- `analyze`: source-level diagnostics, severity counts, and line/column locations.
+- `explain`: a compact source overview with diagnostics.
+- `test-plan`: suggested test cases based on the source.
+- `project-plan`: a structured multi-file implementation plan.
+
+Initial language detection: JavaScript, TypeScript, Python, HTML, CSS, Java, C++, and C#.
+This layer performs static pattern checks and planning only. It does not compile or execute user code, automatically edit repositories, or replace a full compiler/security review.
 
 ## Plugin system
 - `GET /api/plugins`: list registered Retzef plugins.
@@ -19,6 +27,8 @@ Nine Retzef-owned experimental profiles: Hebrew, General and Code, each with N-g
 - `GET /api/health`
 - `GET /api/models`
 - `POST /api/chat`
+- `GET /api/code-tools`
+- `POST /api/code-tools`
 
 ## Limitations
-These are small research prototypes, not ChatGPT-level assistants. Serverless memory is temporary and outputs may be repetitive or inaccurate. No external model provider or API key is used. Plugins execute only from a server-side allowlist.
+The experimental N-gram/Neural/Subword models are small research prototypes, not Codex-level coding models. Serverless memory is temporary. Plugin execution remains server-side and allowlisted.
