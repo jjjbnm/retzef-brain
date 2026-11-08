@@ -5,9 +5,11 @@ export function tokenize(text) {
 }
 
 export function detokenize(tokens) {
+  const closing = new Set([",", ".", ";", ":", "!", "?", "…", ")", "]", "}"]);
+  const opening = new Set(["(", "[", "{"]);
   return tokens.reduce((out, token) => {
-    if (/^[,.;:!?…%)\]}]$/u.test(token)) return out + token;
-    if (/^[(\[{]$/u.test(token)) return out + (out ? " " : "") + token;
+    if (closing.has(token)) return out + token;
+    if (opening.has(token)) return out + (out ? " " : "") + token;
     return out ? out + " " + token : token;
   }, "");
 }
