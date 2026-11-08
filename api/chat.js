@@ -1,25 +1,48 @@
-export default async function handler(req, res) {
-  res.setHeader("Cache-Control", "no-store");
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-  const key = req.headers["x-openrouter-key"];
-  if (typeof key !== "string" || !key.startsWith("sk-or-")) return res.status(401).json({ error: "Connect your OpenRouter API key first." });
-  let body = req.body;
-  if (typeof body === "string") { try { body = JSON.parse(body); } catch { return res.status(400).json({ error: "Invalid JSON body." }); } }
-  const prompt = typeof body?.prompt === "string" ? body.prompt.trim() : "";
-  const models = Array.isArray(body?.models) ? body.models.filter(x => typeof x === "string" && /^[a-zA-Z0-9._/-]{3,180}$/.test(x)).slice(0, 10) : [];
-  if (!prompt || prompt.length > 8000 || !models.length) return res.status(400).json({ error: "A prompt (up to 8,000 characters) and at least one text model are required." });
-  try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: "Bearer " + key, "Content-Type": "application/json", "X-OpenRouter-Title": "Retzef Brain" },
-      body: JSON.stringify({ models, messages: [{ role: "user", content: prompt }], max_tokens: 1200 })
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      const message = data?.error?.message || "The model request failed.";
-      return res.status(response.status >= 400 && response.status < 500 ? response.status : 502).json({ error: String(message).slice(0, 300) });
-    }
-    const text = data?.choices?.[0]?.message?.content;
-    return res.status(200).json({ text: typeof text === "string" ? text : JSON.stringify(text || ""), model: data?.model || null, usage: data?.usage || null });
-  } catch { return res.status(502).json({ error: "Could not reach the model provider. Please try again." }); }
+import { readFile } from "node:fs/promises";
+import { RetzefNgramModel } from "../src/model.js";
+import { RetzefNeuralModel } from "../src/neural-model.js";
+import { RetzefSubwordNeuralModel } from "../src/subword-neural-model.js";
+
+const cache = new Map();
+const definitions = {
+  hebrew:{file:"retzef-hebrew.txt",domain:"Hebrew"},
+  general:{file:"retzef-general.txt",domain:"General"},
+  code:{file:"retzef-code.txt",domain:"Code"}
+};
+async function getModel(id){
+  if(cache.has(id)) return cache.get(id);
+  const match=id.match(/^retzef-(hebrew|general|code)(-neural|-subword)?$/);
+  if(!match) throw new Error("Unknown Retzef model.");
+  const [,domain,suffix]=match, def=definitions[domain];
+  const corpus=await readFile(new URL("../data/corpora/"+def.file,import.meta.url),"utf8");
+  let model,stats;
+  if(suffix==="-neural"){
+    model=new RetzefNeuralModel({embeddingSize:8,hiddenSize:12,contextSize:2});
+    stats=model.train(corpus,{epochs:3});
+  }else if(suffix==="-subword"){
+    model=new RetzefSubwordNeuralModel({embeddingSize:8,hiddenSize:12,contextSize:6});
+    stats=model.train(corpus,{epochs:3});
+  }else{
+    model=new RetzefNgramModel({order:3,maxTokens:48});
+    stats=model.train(corpus);
+  }
+  const entry={model,stats,architecture:suffix==="-neural"?"Neural":suffix==="-subword"?"Subword":"N-gram",domain:def.domain};
+  cache.set(id,entry);
+  return entry;
+}
+export default async function handler(req,res){
+  res.setHeader("Cache-Control","no-store");
+  if(req.method!=="POST") return res.status(405).json({error:"Method not allowed"});
+  let body=req.body;
+  if(typeof body==="string"){try{body=JSON.parse(body)}catch{return res.status(400).json({error:"Invalid JSON."})}}
+  const modelId=typeof body?.modelId==="string"?body.modelId:"";
+  const prompt=typeof body?.prompt==="string"?body.prompt.trim():"";
+  if(!prompt||prompt.length>3000) return res.status(400).json({error:"יש להזין הודעה עד 3,000 תווים."});
+  try{
+    const entry=await getModel(modelId);
+    const answer=entry.model.generate(prompt,{maxTokens:48});
+    return res.status(200).json({answer,model:"Retzef "+entry.domain+" "+entry.architecture,stats:"אומנו "+(entry.stats?.tokens||entry.stats?.trainedTokens||0)+" טוקנים"});
+  }catch(error){
+    return res.status(500).json({error:String(error?.message||"Retzef model failed").slice(0,220)});
+  }
 }
