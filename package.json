@@ -1,13 +1,13 @@
 {
   "name": "retzef-brain",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
   "type": "module",
-  "description": "Model-independent AI orchestration core for Retzef applications.",
+  "description": "A tiny Hebrew n-gram language model trained from scratch for Retzef Brain experiments.",
+  "engines": { "node": ">=20" },
   "scripts": {
-    "test": "node --test"
-  },
-  "engines": {
-    "node": ">=20"
+    "test": "node --test",
+    "train": "node scripts/train.js",
+    "chat": "node scripts/chat.js"
   }
 }
