@@ -10,6 +10,7 @@ on:
       - "data/corpora/**"
       - "scripts/train-models.js"
       - "scripts/train-neural-models.js"
+      - "scripts/train-subword-models.js"
       - "package.json"
       - ".github/workflows/train-models.yml"
   workflow_dispatch:
@@ -33,6 +34,8 @@ jobs:
         run: npm run train:models
       - name: Train neural model family
         run: npm run train:neural
+      - name: Train subword neural model family
+        run: npm run train:subword
       - name: Upload trained model files
         uses: actions/upload-artifact@v4
         with:
