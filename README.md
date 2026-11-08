@@ -1,24 +1,24 @@
 # Retzef Brain
 
-Retzef Brain is an experimental model-independent AI orchestration layer plus a small from-scratch Hebrew text model.
+Retzef Brain is an experimental AI core project for the Retzef ecosystem.
 
-## Custom instructions
+## Model families
 
-Pass a `customInstructions` string to `brain.respond()`. Retzef Brain appends it to the system message and forwards that message to the selected model adapter. This works across providers when their adapter supports the standard `system`, `user`, and `assistant` message roles. Provider APIs differ, so each adapter must map the system message to the provider's equivalent instruction field.
+- **Retzef Hebrew / General / Code** — small N-gram text models trained on separate corpora.
+- **Retzef Neural Hebrew / General / Code** — small neural next-token prediction models implemented from scratch in JavaScript. They use trainable embeddings, a tanh hidden layer, softmax, and backpropagation.
 
-Example:
-```js
-await brain.respond({
-  conversationId: "chat-1",
-  message: "שלום",
-  customInstructions: "ענה בעברית, בקצרה ובטון ידידותי."
-});
+These are educational prototypes, not transformer models and not comparable to ChatGPT. The starter datasets are small, so generated text is limited and may be repetitive or incorrect.
+
+## Train models
+
+Requires Node.js 20+.
+
+```bash
+npm run train:models
+npm run train:neural
+npm test
 ```
 
-Custom instructions are preferences, not a way to override higher-priority safety or system rules. The app must pass the user's saved instructions on each request. Keep provider API keys on the server.
+GitHub Actions also trains both families and uploads the generated JSON model files as a workflow artifact.
 
-## Run
-
-Node.js 20+: `npm test`, `npm run train`, `npm run chat`.
-
-The tiny N-gram model is an educational prototype, not a ChatGPT-level model. The custom-instructions feature is implemented in the orchestration layer and tested with a mock adapter; provider compatibility must be verified separately.
+See [docs/neural-models.md](docs/neural-models.md) for the neural architecture and limitations.

@@ -1,13 +1,14 @@
 {
   "name": "retzef-brain",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": false,
   "type": "module",
-  "description": "A small from-scratch experimental text-model family for Retzef Brain.",
+  "description": "Experimental from-scratch text and neural models for Retzef Brain.",
   "engines": { "node": ">=20" },
   "scripts": {
     "train": "node train.js",
     "train:models": "node scripts/train-models.js",
+    "train:neural": "node scripts/train-neural-models.js",
     "chat": "node chat.js",
     "test": "node --test"
   }
