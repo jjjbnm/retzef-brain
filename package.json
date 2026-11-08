@@ -1,12 +1,13 @@
 {
   "name": "retzef-brain",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": false,
   "type": "module",
-  "description": "A small from-scratch experimental Hebrew text model for Retzef Brain.",
+  "description": "A small from-scratch experimental text-model family for Retzef Brain.",
   "engines": { "node": ">=20" },
   "scripts": {
     "train": "node train.js",
+    "train:models": "node scripts/train-models.js",
     "chat": "node chat.js",
     "test": "node --test"
   }
