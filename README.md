@@ -1,34 +1,24 @@
-# Retzef Brain
 
-Retzef Brain is the home of Retzef's experimental language models and model-independent plugin orchestration.
 
-Production: https://retzef-brain.vercel.app
+## Developer Studio update
 
-## Retzef Code
-The first Code Intelligence layer is available through `POST /api/code-tools`.
-Actions:
-- `analyze`: source-level diagnostics, severity counts, and line/column locations.
-- `explain`: a compact source overview with diagnostics.
-- `test-plan`: suggested test cases based on the source.
-- `project-plan`: a structured multi-file implementation plan.
+The homepage now includes a TypeScript Playground and API key manager.
 
-Initial language detection: JavaScript, TypeScript, Python, HTML, CSS, Java, C++, and C#.
-This layer performs static pattern checks and planning only. It does not compile or execute user code, automatically edit repositories, or replace a full compiler/security review.
+### TypeScript Playground
+- Loads TypeScript 5.8.3 from esm.sh and transpiles in the browser.
+- Runs the emitted JavaScript inside a sandboxed iframe with a restrictive CSP.
+- Playground code is not sent to the Retzef Brain API.
 
-## Plugin system
-- `GET /api/plugins`: list registered Retzef plugins.
-- `POST /api/plugin-run`: run an allowlisted plugin with JSON input.
-- `/plugins.html`: mobile-friendly plugin center.
-- Built-ins: calculator, text analyzer, JSON formatter, and plugin draft builder.
-- Drafts are metadata only and never execute automatically.
-- The orchestration engine accepts structured `toolCalls` from compatible model adapters. Current tiny text models still return plain text, so they do not yet autonomously choose plugins.
+### API keys
+- `POST /api/keys` creates a 90-day `rzf_live_` key.
+- `GET /api/keys?ownerId=...` lists key metadata for the browser owner ID.
+- `DELETE /api/keys` revokes a key by ID.
+- The plaintext key is returned only once; Redis stores only its SHA-256 hash.
+- `POST /api/v1/chat` accepts Bearer API keys and OpenAI-style `messages`.
 
-## API
-- `GET /api/health`
-- `GET /api/models`
-- `POST /api/chat`
-- `GET /api/code-tools`
-- `POST /api/code-tools`
+### Required production storage
+Connect an Upstash Redis database to the Vercel project and add these server-side environment variables:
+- `UPSTASH_REDIS_REST_URL`
+- `UPSTASH_REDIS_REST_TOKEN`
 
-## Limitations
-The experimental N-gram/Neural/Subword models are small research prototypes, not Codex-level coding models. Serverless memory is temporary. Plugin execution remains server-side and allowlisted.
+Until both variables are present, the API key manager returns HTTP 503 and does not pretend to save keys. Never put these credentials in browser code.
