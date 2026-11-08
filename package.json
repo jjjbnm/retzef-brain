@@ -4,8 +4,13 @@
   "private": false,
   "type": "module",
   "description": "Retzef Brain AI Model Studio with secure server-side model catalog and inference routes",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "test": "node --test"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2"
   }
 }
