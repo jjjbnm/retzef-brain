@@ -1,25 +1,26 @@
 # Retzef Brain
 
-Retzef Brain is an experimental AI core project for the Retzef ecosystem.
+Retzef Brain is an experimental AI model studio with a server-side API layer.
 
-## Model families
+## Website
+- Production: https://retzef-brain.vercel.app
+- Provider integration: OpenRouter
 
-- **Retzef Hebrew / General / Code** — small N-gram text models trained on separate corpora.
-- **Retzef Neural Hebrew / General / Code** — small word-level neural next-token models implemented from scratch in JavaScript.
-- **Retzef Subword Neural Hebrew / General / Code** — separate grapheme-level neural models that learn character sequences, spaces and punctuation.
+## Server routes
+- `GET /api/health` — server health.
+- `POST /api/connect` — validates an OpenRouter key via `GET /api/v1/key`.
+- `GET /api/models` — fetches live text, image and video model catalogs from OpenRouter.
+- `POST /api/chat` — sends a prompt to selected text models using OpenRouter fallback routing.
 
-These are educational prototypes, not Transformer models and not comparable to ChatGPT. Their small starter datasets mean generated text may be repetitive or incorrect.
+## Security
+- API keys are sent in the `x-openrouter-key` request header and are never stored in localStorage, database, source files, or returned in API responses.
+- The browser keeps the key in memory only; refreshing the page clears it.
+- Use HTTPS and do not share your API key.
+- Provider usage may incur charges. Review provider pricing and account permissions before use.
 
-## Train models
+## Model stack
+The merge feature creates a configuration/fallback stack. It does not merge neural network weights or train a new model.
+The existing Retzef N-gram, Neural and Subword prototypes remain separate research models and are not presented as production-hosted inference endpoints.
 
-Requires Node.js 20+.
-
-```bash
-npm run train:models
-npm run train:neural
-npm run train:subword
-npm test
-```
-
-GitHub Actions trains all model families and uploads the generated JSON weights as an artifact.
-See [the subword model notes](docs/subword-models.md).
+## Deploy
+Vercel automatically deploys functions in the `api/` directory using the Node.js runtime. No third-party npm dependency is required.

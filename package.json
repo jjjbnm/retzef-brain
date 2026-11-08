@@ -1,16 +1,11 @@
 {
   "name": "retzef-brain",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "private": false,
   "type": "module",
-  "description": "Experimental from-scratch text and neural models for Retzef Brain.",
+  "description": "Retzef Brain AI Model Studio with secure server-side model catalog and inference routes",
   "engines": { "node": ">=20" },
   "scripts": {
-    "train": "node train.js",
-    "train:models": "node scripts/train-models.js",
-    "train:neural": "node scripts/train-neural-models.js",
-    "train:subword": "node scripts/train-subword-models.js",
-    "chat": "node chat.js",
     "test": "node --test"
   }
 }
