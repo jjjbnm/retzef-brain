@@ -1,0 +1,13 @@
+{
+  "name": "retzef-brain",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Model-independent AI orchestration core for Retzef applications.",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
