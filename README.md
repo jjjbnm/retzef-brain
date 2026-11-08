@@ -1,45 +1,24 @@
 # Retzef Brain
 
-Retzef Brain is an experimental, from-scratch Hebrew text-model project. This first learning model is a small word-transition (bigram / N-gram) model. It is **not** a ChatGPT-level neural network and does not understand language like a large language model.
+Retzef Brain is an experimental model-independent AI orchestration layer plus a small from-scratch Hebrew text model.
 
-## Requirements
-- Node.js 20 or newer
-- No external AI API and no paid model provider required
+## Custom instructions
 
-## Quick start
-```bash
-npm test
-npm run train
-npm run chat
+Pass a `customInstructions` string to `brain.respond()`. Retzef Brain appends it to the system message and forwards that message to the selected model adapter. This works across providers when their adapter supports the standard `system`, `user`, and `assistant` message roles. Provider APIs differ, so each adapter must map the system message to the provider's equivalent instruction field.
+
+Example:
+```js
+await brain.respond({
+  conversationId: "chat-1",
+  message: "שלום",
+  customInstructions: "ענה בעברית, בקצרה ובטון ידידותי."
+});
 ```
 
-Type `/exit` to leave the chat demo.
+Custom instructions are preferences, not a way to override higher-priority safety or system rules. The app must pass the user's saved instructions on each request. Keep provider API keys on the server.
 
-## Project structure
-- `brain/tiny-model.js` — trains, generates, and serializes the small language model
-- `brain/tokenizer.js` — Hebrew-friendly word and punctuation tokenizer
-- `data/hebrew-sample.json` — tiny example training corpus; add text samples here
-- `train.js` — trains and saves `models/retzef-brain.json`
-- `chat.js` — terminal chat demo
-- `test/` — automated tests
-- `brain/engine.js` — conversation orchestration layer
-- `brain/memory.js` — bounded in-memory conversation storage
+## Run
 
-## How to improve it
-1. Add more original, clean Hebrew training examples to the JSON array in `data/hebrew-sample.json`.
-2. Run `npm run train` again.
-3. Run `npm test` and try `npm run chat`.
+Node.js 20+: `npm test`, `npm run train`, `npm run chat`.
 
-The model learns only local next-word frequencies. With this tiny dataset, its output will often be repetitive or nonsensical. Better data and more advanced model architecture are future milestones.
-
-## Security and privacy
-This prototype has no login or OAuth implementation. Never put API keys, passwords, or access tokens in source files. Conversation memory is process-local and is not durable across server restarts.
-
-## Roadmap
-- [x] Small trainable Hebrew text model
-- [x] JSON model save/load
-- [x] Terminal demo and automated tests
-- [ ] Larger curated Hebrew dataset
-- [ ] Improved tokenizer and context-aware model
-- [ ] Server API adapter for Retzef AI
-- [ ] OAuth integration (separate, security-reviewed module)
+The tiny N-gram model is an educational prototype, not a ChatGPT-level model. The custom-instructions feature is implemented in the orchestration layer and tested with a mock adapter; provider compatibility must be verified separately.

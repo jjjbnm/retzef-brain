@@ -1,17 +1,10 @@
 /**
- * Model adapter contract.
- *
- * Implement this interface on the SERVER, not in browser code:
- *
- * export function createModelAdapter({ providerClient, modelName }) {
- *   return {
- *     async generate({ messages, temperature, maxOutputTokens }) {
- *       // Call the selected model provider using server-side credentials.
- *       // Return the assistant response as plain text.
- *     }
- *   };
- * }
- *
- * Retzef Brain deliberately does not contain an API key or assume a provider.
+ * Provider-neutral model adapter contract.
+ * Retzef Brain sends messages with system/user/assistant roles.
+ * The adapter must forward the system message intact, including custom
+ * instructions, to the provider's equivalent system/developer instruction
+ * field. Provider APIs differ; translate roles as required without silently
+ * dropping the instruction content. Keep API keys on the server.
  */
 export const MODEL_ADAPTER_METHOD = "generate";
+export const MODEL_MESSAGE_ROLES = Object.freeze(["system", "user", "assistant"]);
