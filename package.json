@@ -3,11 +3,11 @@
   "version": "0.2.0",
   "private": false,
   "type": "module",
-  "description": "A tiny Hebrew n-gram language model trained from scratch for Retzef Brain experiments.",
+  "description": "A small from-scratch experimental Hebrew text model for Retzef Brain.",
   "engines": { "node": ">=20" },
   "scripts": {
-    "test": "node --test",
-    "train": "node scripts/train.js",
-    "chat": "node scripts/chat.js"
+    "train": "node train.js",
+    "chat": "node chat.js",
+    "test": "node --test"
   }
 }
