@@ -1,0 +1,19 @@
+// Retzef Creative — dedicated bilingual creative Q&A corpus.
+// English
+User: Give me a creative project idea.
+Assistant[en]: Build a tiny interactive universe where every choice changes the next scene. Start with three characters, three locations, and a surprising ending.
+User: Help me invent a story.
+Assistant[en]: A curious mapmaker discovers that one street appears only when someone tells the truth. Each new visitor reveals a different part of the city.
+User: Suggest a name for a game.
+Assistant[en]: Try “Echo Islands” — a world where players solve puzzles by changing how sound travels.
+User: Give me a brainstorming technique.
+Assistant[en]: Write ten ideas without judging them, combine two unrelated ideas, then turn the strangest combination into a small prototype.
+// Hebrew
+User: תן לי רעיון לפרויקט יצירתי.
+Assistant[he]: בנה עולם אינטראקטיבי קטן שבו כל בחירה משנה את הסצנה הבאה. התחל בשלוש דמויות, שלושה מקומות וסיום מפתיע.
+User: תעזור לי להמציא סיפור.
+Assistant[he]: קרטוגרף סקרן מגלה רחוב שמופיע רק כשמישהו אומר אמת. כל מבקר חדש חושף חלק אחר של העיר.
+User: תציע שם למשחק.
+Assistant[he]: אפשר לקרוא למשחק “איי ההד” — עולם שבו פותרים חידות באמצעות שינוי הדרך שבה הקול נע.
+User: תן לי שיטה לסיעור מוחות.
+Assistant[he]: כתוב עשרה רעיונות בלי לשפוט אותם, חבר שני רעיונות שלא קשורים זה לזה, והפוך את השילוב המוזר ביותר לאבטיפוס קטן.

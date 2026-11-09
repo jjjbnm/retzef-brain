@@ -2,12 +2,13 @@ import { readFile } from "node:fs/promises";
 import { RetzefNgramModel } from "../src/model.js";
 import { RetzefNeuralModel } from "../src/neural-model.js";
 import { RetzefSubwordNeuralModel } from "../src/subword-neural-model.js";
+import { retrieveGroundedAnswer } from "../src/retrieval.js";
 
 const cache = new Map();
 const definitions = {
   "retzef-general": { file: "retzef-general.txt", architecture: "subword" },
   "retzef-code": { file: "retzef-code.txt", architecture: "neural" },
-  "retzef-creative": { file: "retzef-general.txt", architecture: "ngram" }
+  "retzef-creative": { file: "retzef-creative.txt", architecture: "ngram" }
 };
 const names = {
   "retzef-general": "Retzef General",
@@ -120,28 +121,39 @@ export async function trainNativeModel(modelId, examples = []) {
   return { weights: model.toJSON(), stats, trainingExamples: cleanExamples.length };
 }
 
-export async function generateRetzefResponse({ modelId, prompt, serializedModel = null }) {
+export async function generateRetzefResponse({ modelId, prompt, serializedModel = null, trainingExamples = [] }) {
   if (!definitions[modelId]) throw new Error("Unknown Retzef model.");
   const userMessage = extractLatestUserMessage(prompt);
   if (!userMessage) return "שלח הודעה ואשמח לעזור. 😊";
   const simpleReply = simpleConversationReply(userMessage);
   if (simpleReply) return simpleReply;
 
-  const entry = serializedModel
-    ? { model: restoreModel(modelId, serializedModel) }
-    : cache.get(modelId) || null;
-  let model = entry?.model;
-  if (!model) {
-    const trained = await trainNativeModel(modelId);
-    model = restoreModel(modelId, trained.weights);
-    cache.set(modelId, { model });
-  }
-  const context = "User: " + userMessage + "\nAssistant[" + detectLanguageCode(userMessage) + "]:";
-  const options = modelId === "retzef-general"
-    ? { maxTokens: 120, minTokens: 8, temperature: 0.7, topK: 10, repetitionPenalty: 0.24 }
-    : { maxTokens: modelId === "retzef-code" ? 80 : 120, temperature: modelId === "retzef-code" ? 0.25 : 0.72 };
-  const raw = String(model.generate(context, options) || "");
-  return raw.startsWith(context) ? raw.slice(context.length).trim() : raw.trim();
+  const corpus = await readBaseCorpus(modelId);
+  const grounded = retrieveGroundedAnswer({
+    question: userMessage,
+    corpus,
+    trainingExamples,
+    modelId,
+    language: detectLanguageCode(userMessage)
+  });
+  if (grounded) return grounded;
+
+  // The current tiny next-token networks are useful experiments, not reliable chat LLMs.
+  // Never expose their ungrounded token guesses as factual answers.
+  const language = detectLanguageCode(userMessage);
+  const fallbacks = {
+    he: {
+      "retzef-general": "אני Retzef General, מודל ניסיוני. עדיין אין לי מספיק מידע מאומן כדי לענות על השאלה הזאת בביטחון. אפשר ללמד אותי תשובה דרך דוגמאות אימון.",
+      "retzef-code": "אני Retzef Code. עדיין אין לי דוגמת קוד מתאימה לשאלה הזאת במאגר האימון שלי, ולכן לא אנחש קוד שעלול להיות שגוי.",
+      "retzef-creative": "אני Retzef Creative. עוד לא מצאתי דוגמה מתאימה במאגר היצירתי שלי. נסה לבקש רעיון, סיפור או שם לפרויקט בצורה ממוקדת יותר."
+    },
+    en: {
+      "retzef-general": "I'm Retzef General, an experimental model. I don't have enough relevant training information to answer confidently yet. You can teach me with training examples.",
+      "retzef-code": "I'm Retzef Code. I couldn't find a relevant programming example in my training data, so I won't guess and give you potentially broken code.",
+      "retzef-creative": "I'm Retzef Creative. I couldn't find a matching creative example in my training data yet. Try asking for a focused idea, story, or project name."
+    }
+  };
+  return (fallbacks[language] || fallbacks.en)[modelId];
 }
 
 export default async function handler(req, res) {
@@ -158,7 +170,7 @@ export default async function handler(req, res) {
   if (!prompt || prompt.length > 12000) return res.status(400).json({ error: "ההודעה חייבת להכיל 1–12,000 תווים." });
   try {
     const answer = await generateRetzefResponse({ modelId, prompt });
-    return res.status(200).json({ answer, model: names[modelId], engine: "retzef-native" });
+    return res.status(200).json({ answer, model: names[modelId], engine: "retzef-grounded-retrieval-v1" });
   } catch (error) {
     return res.status(500).json({ error: String(error?.message || "Retzef model failed").slice(0, 220) });
   }
