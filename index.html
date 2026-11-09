@@ -13,19 +13,19 @@
 <header class="topbar">
   <a class="brand" href="#home"><span class="brand-icon">R</span><span>RETZEF <b>BRAIN</b><small>DEVELOPER STUDIO</small></span></a>
   <nav class="nav"><a href="#models">מודלים</a><a href="#playground">TS Playground</a><a href="#api">API Keys</a><a href="/plugins.html">Plugins</a></nav>
-  <div class="top-actions"><span class="live"><i></i> SYSTEM ONLINE</span><button class="menu-btn" id="menuBtn" aria-label="פתח תפריט">☰</button></div>
+  <div class="top-actions"><span class="live"><i></i> RETZEF BRAIN · BETA</span><button class="menu-btn" id="menuBtn" aria-label="פתח תפריט">☰</button></div>
 </header>
 <main id="home">
 <section class="hero container home-hero">
-  <div class="hero-copy"><div class="kicker"><span></span> RETZEF BRAIN · API WORKSPACE</div>
-    <h1>בחר מודל.<br><em>צור API Key.</em></h1>
-    <p>בחר אחד ממודלי Retzef, צור מפתח API ייעודי וחבר אותו לאתר, לבוט או לאפליקציה שלך.</p>
-    <div class="hero-meta"><span>✦ מודלים מקוריים</span><span>⌘ API למפתחים</span><span>◈ Plugins</span></div>
+  <div class="hero-copy"><div class="kicker"><span></span> YOUR AI. YOUR API. YOUR WORKSPACE.</div>
+    <h1>בונים עם AI.<br><em>מתחברים בדרך שלכם.</em></h1>
+    <p>בחרו מודל ניסיוני, צרו API Key מאובטח וחברו את Retzef Brain לאתר, לבוט או לאפליקציה. כל הכלים החשובים נמצאים במקום אחד.</p>
+    <div class="hero-meta"><span>✦ מודלים ניסיוניים</span><span>⌘ API למפתחים</span><span>◈ סביבת פיתוח</span></div>
     <div class="home-shortcuts"><a class="btn ghost" href="#playground">פתח TS Playground ↗</a><a class="btn ghost" href="/plugins.html">פתח Plugins ↗</a></div>
   </div>
   <div class="home-key-card" id="createKeyPanel">
     <div class="home-card-top"><div class="card-icon">⌘</div><span class="secure-pill">🔒 PRIVATE</span></div>
-    <div class="kicker">CREATE YOUR ACCESS KEY</div><h2>יצירת API Key</h2><p class="home-card-sub">בחר את המודל שהמפתח הזה ישתמש בו.</p>
+    <div class="kicker">START BUILDING IN SECONDS</div><h2>המפתח הראשון שלכם</h2><p class="home-card-sub">בחרו מודל, תנו למפתח שם והתחילו לבנות.</p>
     <label for="modelSelect">בחר מודל Retzef</label>
     <select id="modelSelect" class="model-select"><option value="retzef-code">טוען מודלים…</option></select>
     <div id="selectedModelInfo" class="selected-model-info">טוען פרטי מודל…</div>
@@ -37,12 +37,12 @@
 </section>
 <section class="metrics container"><div><strong id="modelCount">—</strong><span>מודלים זמינים</span></div><div><strong>5</strong><span>ספקי Plugins</span></div><div><strong>TS</strong><span>Playground מובנה</span></div><div><strong>REST</strong><span>API למפתחים</span></div></section>
 <section class="section container" id="models">
-  <div class="section-head"><div><div class="kicker">MODEL CATALOG</div><h2>המודלים של Retzef</h2><p>מודלים ניסיוניים מקוריים לפי תחום וארכיטקטורה.</p></div><span class="section-index">01 / MODELS</span></div>
+  <div class="section-head"><div><div class="kicker">MODEL CATALOG</div><h2>המודלים של Retzef</h2><p>בחרו את המודל שמתאים למשימה. כל מודל מציג את הארכיטקטורה והייעוד שלו בצורה שקופה.</p></div><span class="section-index">01 / MODELS</span></div>
   <div class="model-grid" id="modelsGrid"><div class="skeleton">טוען מודלים…</div></div>
   <div class="notice">ⓘ המודלים הנוכחיים הם אבות־טיפוס מחקריים קטנים. הם אינם ברמה של מודלים מסחריים גדולים, והתשובות עשויות להיות קצרות או שגויות.</div>
 </section>
 <section class="section playground-section" id="playground"><div class="container">
-  <div class="section-head"><div><div class="kicker">IN-BROWSER CODE LAB</div><h2>TypeScript Playground</h2><p>כתוב TypeScript, המר ל־JavaScript והריץ בסביבת sandbox מבודדת.</p></div><span class="section-index">02 / PLAYGROUND</span></div>
+  <div class="section-head"><div><div class="kicker">IN-BROWSER CODE LAB</div><h2>TypeScript Playground</h2><p>סביבת קוד בדפדפן: כתבו TypeScript, בדקו שגיאות והריצו ב־sandbox מבודד.</p></div><span class="section-index">02 / PLAYGROUND</span></div>
   <div class="playground">
     <div class="editor-panel">
       <div class="editor-toolbar"><div class="file-label"><span class="file-dot"></span> playground.ts</div><div class="editor-tools"><span class="ts-badge">TS</span><button id="resetCode" class="tool-btn">איפוס</button><button id="runCode" class="run-btn">▶ הרץ קוד</button></div></div>
@@ -67,7 +67,7 @@ console.log(welcome(user));</textarea></div>
   </div>
 </div></section>
 <section class="section container" id="api">
-  <div class="section-head"><div><div class="kicker">DEVELOPER ACCESS</div><h2>API Keys</h2><p>צור מפתח סודי וחבר את Retzef Brain לאתר, לבוט או לאפליקציה שלך.</p></div><span class="section-index">03 / API</span></div>
+  <div class="section-head"><div><div class="kicker">CONTROL CENTER</div><h2>ניהול הגישה שלכם</h2><p>נהלו מפתחות, בחרו מודל לכל מפתח וחברו את השירותים שלכם דרך REST API.</p></div><span class="section-index">03 / API</span></div>
   <div class="api-layout"><div class="api-card keys-card"><div class="api-card-head"><div><h3>המפתחות שלי</h3><p>ניהול המפתחות שנוצרו בדפדפן הזה. כל מפתח מחובר למודל שבחרת.</p></div><span class="secure-pill">🔒 PRIVATE</span></div><div id="keysList" class="keys-list"><div class="empty-keys">טוען מפתחות…</div></div><a class="text-link" href="#createKeyPanel">＋ יצירת מפתח חדש</a></div></div>
   <div class="api-docs"><div><div class="kicker">QUICK START</div><h3>איך מתחברים ל־Retzef API?</h3><p>שלח בקשת POST עם Authorization Bearer והודעות בפורמט chat completions.</p></div><pre><code>const response = await fetch(
   "https://retzef-brain.vercel.app/api/v1/chat",
