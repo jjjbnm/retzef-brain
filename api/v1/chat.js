@@ -1,4 +1,5 @@
 import { verifyApiKey } from "../../brain/key-store.js";
+import { getModelWeights } from "../../brain/training-store.js";
 import { generateRetzefResponse } from "../chat.js";
 
 export default async function handler(req, res) {
@@ -19,15 +20,16 @@ export default async function handler(req, res) {
       catch { return res.status(400).json({ error: { message: "Invalid JSON", type: "invalid_request_error" } }); }
     }
     const modelId = identity.model || (typeof body?.model === "string" ? body.model : "retzef-code");
-    if (identity.model && typeof body?.model === "string" && body.model !== identity.model) {
-      return res.status(400).json({ error: { message: "This API key is assigned to " + identity.model + ".", type: "invalid_request_error" } });
+    if (typeof body?.model === "string" && body.model !== modelId) {
+      return res.status(400).json({ error: { message: "This API key is assigned to " + modelId + ".", type: "invalid_request_error" } });
     }
     const messages = Array.isArray(body?.messages) ? body.messages : [];
     const textMessages = messages.filter(m => m && typeof m.content === "string");
     const latestUser = [...textMessages].reverse().find(m => m.role === "user");
     if (!latestUser || !String(latestUser.content).trim()) return res.status(400).json({ error: { message: "messages must contain at least one text user message", type: "invalid_request_error" } });
     const prompt = textMessages.map(m => String(m.role || "user") + ": " + m.content).join("\n").slice(-12000);
-    const answer = await generateRetzefResponse({ modelId, prompt });
+    const saved = await getModelWeights(identity.id, modelId);
+    const answer = await generateRetzefResponse({ modelId, prompt, serializedModel: saved?.weights || null });
     return res.status(200).json({
       id: "chatcmpl_" + Date.now().toString(36),
       object: "chat.completion",
@@ -38,7 +40,8 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     const message = String(error?.message || "");
-    if (message.includes("not configured")) return res.status(503).json({ error: { message: "API key storage is not configured", type: "server_error" } });
-    return res.status(400).json({ error: { message: message.slice(0, 200) || "Retzef model request failed", type: "invalid_request_error" } });
+    if (message.includes("not configured") || message.includes("DATABASE_URL")) return res.status(503).json({ error: { message: "Training or API key storage is not configured", type: "server_error" } });
+    console.error("Retzef API request failed:", message);
+    return res.status(500).json({ error: { message: "Retzef model request failed", type: "server_error" } });
   }
 }
