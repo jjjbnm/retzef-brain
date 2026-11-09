@@ -12,7 +12,7 @@
 <div class="ambient a1"></div><div class="ambient a2"></div>
 <header class="topbar">
   <a class="brand" href="#home"><span class="brand-icon">R</span><span>RETZEF <b>BRAIN</b><small>DEVELOPER STUDIO</small></span></a>
-  <nav class="nav"><a href="#models">מודלים</a><a href="#playground">TS Playground</a><a href="#api">API Keys</a><a href="/plugins.html">Plugins</a></nav>
+  <nav class="nav"><a href="#models">מודלים</a><a href="#test-chat">בדיקת מודל</a><a href="#playground">TS Playground</a><a href="#api">API Keys</a><a href="/plugins.html">Plugins</a></nav>
   <div class="top-actions"><span class="live"><i></i> RETZEF BRAIN · BETA</span><button class="menu-btn" id="menuBtn" aria-label="פתח תפריט">☰</button></div>
 </header>
 <main id="home">
@@ -41,8 +41,20 @@
   <div class="model-grid" id="modelsGrid"><div class="skeleton">טוען מודלים…</div></div>
   <div class="notice">ⓘ המודלים הנוכחיים הם אבות־טיפוס מחקריים קטנים. הם אינם ברמה של מודלים מסחריים גדולים, והתשובות עשויות להיות קצרות או שגויות.</div>
 </section>
+
+<section class="section container" id="test-chat">
+  <div class="section-head"><div><div class="kicker">LIVE MODEL TEST</div><h2>בדקו את המודל בצ׳אט</h2><p>בחרו מודל, שלחו הודעה וקבלו תשובה ממנוע Retzef Brain. אפשר להמשיך את השיחה ולבדוק שאלות נוספות.</p></div><span class="section-index">02 / CHAT LAB</span></div>
+  <div class="test-chat-shell">
+    <div class="test-chat-toolbar"><div><span class="test-chat-dot"></span><b>Retzef Model Playground</b><small>שיחת בדיקה · ללא API Key</small></div><div class="test-chat-controls"><label for="testModelSelect">מודל לבדיקה</label><select id="testModelSelect" class="model-select"><option value="retzef-general">טוען מודלים…</option></select><button id="clearTestChat" class="tool-btn">נקה שיחה</button></div></div>
+    <div class="test-model-status" id="testModelStatus">נבחר: Retzef General · מוכן לבדיקה</div>
+    <div class="test-chat-messages" id="testChatMessages" aria-live="polite"><div class="test-chat-welcome"><span>✦</span><b>בואו נבדוק את Retzef</b><p>כתבו הודעה ראשונה כדי לראות איך המודל מגיב.</p><button type="button" class="test-suggestion" data-test-prompt="היי">היי 👋</button><button type="button" class="test-suggestion" data-test-prompt="מי אתה?">מי אתה?</button><button type="button" class="test-suggestion" data-test-prompt="תן לי רעיון לפרויקט מגניב">תן לי רעיון לפרויקט</button></div></div>
+    <form id="testChatForm" class="test-chat-composer"><textarea id="testChatInput" rows="2" maxlength="2000" placeholder="כתבו את ההודעה שלכם…" aria-label="ההודעה למודל"></textarea><button id="sendTestMessage" class="btn primary" type="submit"><span>שליחה</span> ↗</button></form>
+    <div class="test-chat-foot"><span>↵ Enter לשליחה · Shift + Enter לשורה חדשה</span><span>המודלים ניסיוניים — התשובות עשויות להיות לא מדויקות</span></div>
+  </div>
+</section>
+
 <section class="section playground-section" id="playground"><div class="container">
-  <div class="section-head"><div><div class="kicker">IN-BROWSER CODE LAB</div><h2>TypeScript Playground</h2><p>סביבת קוד בדפדפן: כתבו TypeScript, בדקו שגיאות והריצו ב־sandbox מבודד.</p></div><span class="section-index">02 / PLAYGROUND</span></div>
+  <div class="section-head"><div><div class="kicker">IN-BROWSER CODE LAB</div><h2>TypeScript Playground</h2><p>סביבת קוד בדפדפן: כתבו TypeScript, בדקו שגיאות והריצו ב־sandbox מבודד.</p></div><span class="section-index">03 / PLAYGROUND</span></div>
   <div class="playground">
     <div class="editor-panel">
       <div class="editor-toolbar"><div class="file-label"><span class="file-dot"></span> playground.ts</div><div class="editor-tools"><span class="ts-badge">TS</span><button id="resetCode" class="tool-btn">איפוס</button><button id="runCode" class="run-btn">▶ הרץ קוד</button></div></div>
@@ -67,7 +79,7 @@ console.log(welcome(user));</textarea></div>
   </div>
 </div></section>
 <section class="section container" id="api">
-  <div class="section-head"><div><div class="kicker">CONTROL CENTER</div><h2>ניהול הגישה שלכם</h2><p>נהלו מפתחות, בחרו מודל לכל מפתח וחברו את השירותים שלכם דרך REST API.</p></div><span class="section-index">03 / API</span></div>
+  <div class="section-head"><div><div class="kicker">CONTROL CENTER</div><h2>ניהול הגישה שלכם</h2><p>נהלו מפתחות, בחרו מודל לכל מפתח וחברו את השירותים שלכם דרך REST API.</p></div><span class="section-index">04 / API</span></div>
   <div class="api-layout"><div class="api-card keys-card"><div class="api-card-head"><div><h3>המפתחות שלי</h3><p>ניהול המפתחות שנוצרו בדפדפן הזה. כל מפתח מחובר למודל שבחרת.</p></div><span class="secure-pill">🔒 PRIVATE</span></div><div id="keysList" class="keys-list"><div class="empty-keys">טוען מפתחות…</div></div><a class="text-link" href="#createKeyPanel">＋ יצירת מפתח חדש</a></div></div>
   <div class="api-docs"><div><div class="kicker">QUICK START</div><h3>איך מתחברים ל־Retzef API?</h3><p>שלח בקשת POST עם Authorization Bearer והודעות בפורמט chat completions.</p></div><pre><code>const response = await fetch(
   "https://retzef-brain.vercel.app/api/v1/chat",
