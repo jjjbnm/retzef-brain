@@ -1,4 +1,4 @@
-import { registerAccount, authenticateAccount, createAccountSession, getAccountFromRequest, deleteAccountSession, readSessionCookie, sessionCookie, validateUsername } from "../brain/account-store.js";
+import { registerAccount, authenticateAccount, createAccountSession, getAccountFromRequest, deleteAccountSession, readSessionCookie, sessionCookie, validateUsername, updateAccountAvatar } from "../brain/account-store.js";
 import { claimLegacyApiKeys, validOwnerId } from "../brain/key-store.js";
 import { claimLegacyTrainingData } from "../brain/training-store.js";
 function readBody(req){let body=req.body;if(typeof body==="string"){try{return JSON.parse(body)}catch{return null}}return body||{}}
@@ -9,6 +9,14 @@ export default async function handler(req,res){
   if(action==="me"){
    if(req.method!=="GET")return res.status(405).json({error:"Method not allowed"});
    const user=await getAccountFromRequest(req);if(!user)return res.status(401).json({ok:false,error:"Not signed in"});return res.status(200).json({ok:true,user});
+  }
+  if(action==="avatar"){
+   if(req.method!=="POST")return res.status(405).json({error:"Method not allowed"});
+   const account=await getAccountFromRequest(req);if(!account)return res.status(401).json({error:"יש להתחבר כדי לשנות תמונת פרופיל."});
+   const avatarData=readBody(req)?.avatarData;
+   if(avatarData!==null && (typeof avatarData!=="string" || avatarData.length>260000 || !/^data:image\/jpeg;base64,[A-Za-z0-9+/]+=*$/.test(avatarData)))return res.status(400).json({error:"יש להעלות תמונת JPG תקינה עד 180KB לאחר כיווץ."});
+   if(typeof avatarData==="string") { const bytes=Buffer.from(avatarData.slice(23),"base64"); if(bytes.length>180000 || bytes.length<4 || bytes[0]!==0xff || bytes[1]!==0xd8 || bytes[2]!==0xff)return res.status(400).json({error:"קובץ התמונה אינו JPG תקין או שהוא גדול מדי."}); }
+   const user=await updateAccountAvatar(account.id,avatarData);if(!user)return res.status(404).json({error:"החשבון לא נמצא."});return res.status(200).json({ok:true,user});
   }
   if(action==="logout"){
    if(req.method!=="POST")return res.status(405).json({error:"Method not allowed"});

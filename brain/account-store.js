@@ -18,8 +18,9 @@ async function ensureSchema() {
       await sql`CREATE TABLE IF NOT EXISTS retzef_accounts (
         id TEXT PRIMARY KEY, username TEXT NOT NULL, username_normalized TEXT NOT NULL UNIQUE,
         display_name TEXT NOT NULL, password_salt TEXT NOT NULL, password_hash TEXT NOT NULL,
-        created_at BIGINT NOT NULL
+        avatar_data TEXT, created_at BIGINT NOT NULL
       )`;
+      await sql`ALTER TABLE retzef_accounts ADD COLUMN IF NOT EXISTS avatar_data TEXT`;
       await sql`CREATE TABLE IF NOT EXISTS retzef_account_sessions (
         token_hash TEXT PRIMARY KEY, account_id TEXT NOT NULL REFERENCES retzef_accounts(id) ON DELETE CASCADE,
         created_at BIGINT NOT NULL, expires_at BIGINT NOT NULL
@@ -32,7 +33,7 @@ async function ensureSchema() {
   return database();
 }
 const digest = (value) => createHash("sha256").update(value).digest("hex");
-const publicUser = (row) => ({ id: row.id, username: row.username, displayName: row.display_name, createdAt: Number(row.created_at) });
+const publicUser = (row) => ({ id: row.id, username: row.username, displayName: row.display_name, avatarData: row.avatar_data || null, createdAt: Number(row.created_at) });
 export function validateUsername(value) { return typeof value === "string" && /^[a-zA-Z0-9_]{3,24}$/.test(value.trim()); }
 export async function registerAccount({ username, displayName, password }) {
   const sql = await ensureSchema();
@@ -57,7 +58,7 @@ export async function registerAccount({ username, displayName, password }) {
 }
 export async function authenticateAccount(username, password) {
   const sql = await ensureSchema();
-  const rows = await sql`SELECT id, username, display_name, created_at, password_salt, password_hash
+  const rows = await sql`SELECT id, username, display_name, avatar_data, created_at, password_salt, password_hash
     FROM retzef_accounts WHERE username_normalized = ${String(username).trim().toLowerCase()} LIMIT 1`;
   const row = rows[0];
   if (!row) return null;
@@ -78,7 +79,7 @@ export async function createAccountSession(accountId) {
 export async function getAccountSession(token) {
   if (typeof token !== "string" || token.length < 30 || token.length > 100) return null;
   const sql = await ensureSchema();
-  const rows = await sql`SELECT a.id, a.username, a.display_name, a.created_at
+  const rows = await sql`SELECT a.id, a.username, a.display_name, a.avatar_data, a.created_at
     FROM retzef_account_sessions s JOIN retzef_accounts a ON a.id = s.account_id
     WHERE s.token_hash = ${digest(token)} AND s.expires_at > ${Date.now()} LIMIT 1`;
   return rows[0] ? publicUser(rows[0]) : null;
@@ -100,4 +101,11 @@ export async function getAccountFromRequest(req) {
 }
 export function sessionCookie(token, maxAge = 30 * 24 * 60 * 60) {
   return `retzef_session=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`;
+}
+
+export async function updateAccountAvatar(accountId, avatarData) {
+  const sql = await ensureSchema();
+  const rows = await sql`UPDATE retzef_accounts SET avatar_data = ${avatarData} WHERE id = ${accountId}
+    RETURNING id, username, display_name, avatar_data, created_at`;
+  return rows[0] ? publicUser(rows[0]) : null;
 }
