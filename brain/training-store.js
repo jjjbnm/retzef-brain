@@ -110,3 +110,10 @@ export async function getTrainingStatus(keyId, model) {
     updatedAt: saved?.updatedAt ? Number(saved.updatedAt) : null
   };
 }
+
+export async function claimLegacyTrainingData(legacyOwnerId, accountId) {
+  const sql = await ensureSchema();
+  const examples = await sql`UPDATE retzef_training_examples SET owner_id = ${accountId} WHERE owner_id = ${legacyOwnerId} RETURNING id`;
+  await sql`UPDATE retzef_model_weights SET owner_id = ${accountId} WHERE owner_id = ${legacyOwnerId}`;
+  return examples.length;
+}

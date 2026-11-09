@@ -131,3 +131,9 @@ export async function verifyApiKey(secret) {
     model: row.model || "retzef-code"
   };
 }
+
+export async function claimLegacyApiKeys(legacyOwnerId, accountId) {
+  const sql = await ensureSchema();
+  const rows = await sql`UPDATE retzef_api_keys SET owner_id = ${accountId} WHERE owner_id = ${legacyOwnerId} RETURNING id`;
+  return rows.length;
+}

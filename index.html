@@ -9,6 +9,20 @@
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+<section class="account-gate" id="accountGate" aria-labelledby="accountTitle">
+  <div class="account-card"><div class="account-brand"><span class="brand-icon">R</span><span>RETZEF <b>BRAIN</b><small>YOUR ACCOUNT</small></span></div>
+    <div class="account-kicker">RETZEF ACCOUNT SYSTEM</div><h1 id="accountTitle">החשבון שלך מתחיל כאן</h1>
+    <p class="account-intro">יוצרים חשבון אחד כדי לשמור את ה־API Keys והעבודה שלך ב־Retzef Brain.</p>
+    <div class="account-tabs"><button type="button" class="active" id="showLogin">התחברות</button><button type="button" id="showRegister">יצירת חשבון</button></div>
+    <form id="accountForm" autocomplete="on"><label for="accountUsername">שם משתמש</label><input id="accountUsername" name="username" autocomplete="username" minlength="3" maxlength="24" placeholder="your_username" required>
+      <div id="displayNameField" hidden><label for="accountDisplayName">שם לתצוגה</label><input id="accountDisplayName" name="displayName" autocomplete="nickname" maxlength="32" placeholder="איך להציג אותך?"></div>
+      <label for="accountPassword">סיסמה</label><input id="accountPassword" name="password" type="password" autocomplete="current-password" minlength="8" maxlength="128" placeholder="לפחות 8 תווים" required>
+      <div id="confirmPasswordField" hidden><label for="accountConfirmPassword">אימות סיסמה</label><input id="accountConfirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="הקלידו שוב את הסיסמה"></div>
+      <button class="account-submit" id="accountSubmit" type="submit">התחברות לחשבון <span>←</span></button><p class="account-message" id="accountMessage" role="status" aria-live="polite"></p>
+    </form><div class="account-security"><span>🔒</span> הסיסמה נשמרת בצורה מוצפנת חד־כיוונית. לא נשמרת כסיסמה גלויה.</div>
+  </div>
+</section>
+
 <section class="entry-chooser" id="entryChooser" aria-labelledby="entryTitle">
   <div class="entry-glow entry-glow-one"></div><div class="entry-glow entry-glow-two"></div>
   <div class="entry-brand"><span class="brand-icon">R</span><span>RETZEF <b>BRAIN</b><small>DEVELOPER STUDIO</small></span></div>
@@ -36,7 +50,7 @@
 <header class="topbar">
   <a class="brand" href="#home"><span class="brand-icon">R</span><span>RETZEF <b>BRAIN</b><small>DEVELOPER STUDIO</small></span></a>
   <nav class="nav"><a href="#models">מודלים</a><a href="#test-chat">בדיקת מודל</a><a href="#playground">TS Playground</a><a href="#api">API Keys</a><a href="/plugins.html">Plugins</a></nav>
-  <div class="top-actions"><span class="live"><i></i> RETZEF BRAIN · BETA</span><button class="menu-btn" id="menuBtn" aria-label="פתח תפריט">☰</button></div>
+  <div class="top-actions"><span class="account-user" id="accountUser" hidden></span><button class="account-logout" id="accountLogout" type="button" hidden>התנתקות</button><span class="live"><i></i> RETZEF BRAIN · BETA</span><button class="menu-btn" id="menuBtn" aria-label="פתח תפריט">☰</button></div>
 </header>
 <main id="home">
 <section class="hero container home-hero" id="ai-workspace">
@@ -143,5 +157,6 @@ console.log(data.choices[0].message.content);</code></pre></div>
   });
 })();
 </script>
+<script src="/account.js" defer></script>
 <script type="module" src="/studio.js"></script>
 </body></html>

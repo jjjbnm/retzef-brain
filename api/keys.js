@@ -1,4 +1,5 @@
-import { createApiKey, listApiKeys, revokeApiKey, validOwnerId } from "../brain/key-store.js";
+import { createApiKey, listApiKeys, revokeApiKey } from "../brain/key-store.js";
+import { getAccountFromRequest } from "../brain/account-store.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -12,12 +13,10 @@ export default async function handler(req, res) {
     try { body = JSON.parse(body); }
     catch { return res.status(400).json({ error: "Invalid JSON" }); }
   }
-  const ownerId = req.method === "GET" ? req.query?.ownerId : body?.ownerId;
-  if (!validOwnerId(ownerId)) {
-    return res.status(400).json({ error: "A valid browser owner ID is required." });
-  }
-
   try {
+    const account = await getAccountFromRequest(req);
+    if (!account) return res.status(401).json({ error: "יש להתחבר לחשבון Retzef Brain כדי לנהל API Keys." });
+    const ownerId = account.id;
     if (req.method === "GET") {
       return res.status(200).json({ ok: true, keys: await listApiKeys(ownerId) });
     }

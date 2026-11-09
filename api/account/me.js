@@ -1,0 +1,2 @@
+import { getAccountFromRequest } from "../../brain/account-store.js";
+export default async function handler(req,res){res.setHeader("Cache-Control","no-store");if(req.method!=="GET")return res.status(405).json({error:"Method not allowed"});try{const user=await getAccountFromRequest(req);if(!user)return res.status(401).json({ok:false,error:"Not signed in"});return res.status(200).json({ok:true,user});}catch(error){console.error("Account session lookup failed:",String(error?.message||error));return res.status(503).json({ok:false,error:"Account database unavailable"});}}
