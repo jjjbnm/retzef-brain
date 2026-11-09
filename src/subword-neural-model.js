@@ -12,9 +12,10 @@ function seededRandom(seed = 29) {
   };
 }
 
-function softmax(logits) {
+function softmax(logits, temperature = 0.8) {
+  const t = Math.max(0.15, temperature);
   const max = Math.max(...logits);
-  const values = logits.map(value => Math.exp(value - max));
+  const values = logits.map(value => Math.exp((value - max) / t));
   const sum = values.reduce((a, b) => a + b, 0);
   return values.map(value => value / sum);
 }
@@ -29,7 +30,7 @@ function sample(probabilities, random) {
 }
 
 export class RetzefSubwordNeuralModel {
-  constructor({ embeddingSize = 12, hiddenSize = 24, contextSize = 8, learningRate = 0.025, seed = 29 } = {}) {
+  constructor({ embeddingSize = 12, hiddenSize = 24, contextSize = 24, learningRate = 0.02, seed = 29 } = {}) {
     for (const [name, value] of Object.entries({ embeddingSize, hiddenSize, contextSize })) {
       if (!Number.isInteger(value) || value < 1 || value > 128) throw new RangeError(name + " must be an integer from 1 to 128");
     }
@@ -64,7 +65,7 @@ export class RetzefSubwordNeuralModel {
     const v = this.vocabulary.length;
     const input = this.contextSize * this.embeddingSize;
     const values = (length, scale) => Array.from({ length }, () => (random() * 2 - 1) * scale);
-    this.embeddings = values(v * this.embeddingSize, 0.2);
+    this.embeddings = values(v * this.embeddingSize, 0.16);
     this.w1 = values(this.hiddenSize * input, Math.sqrt(2 / input));
     this.b1 = Array(this.hiddenSize).fill(0);
     this.w2 = values(v * this.hiddenSize, Math.sqrt(2 / this.hiddenSize));
@@ -95,21 +96,24 @@ export class RetzefSubwordNeuralModel {
     return { x, hidden, logits };
   }
 
-  train(text, { epochs = 16, learningRate = this.learningRate } = {}) {
+  train(text, { epochs = 20, learningRate = this.learningRate } = {}) {
     if (!Number.isInteger(epochs) || epochs < 1 || epochs > 500) throw new RangeError("epochs must be an integer from 1 to 500");
     if (!Number.isFinite(learningRate) || learningRate <= 0 || learningRate > 1) throw new RangeError("learningRate must be between 0 and 1");
     const tokens = tokenizeSubwords(text);
     if (tokens.length < 3) throw new Error("Training text must contain at least three characters");
     this.buildVocabulary(tokens);
     this.initialize();
+
     const ids = [0, ...tokens.map(token => this.tokenToId.get(token)), 1];
     const examples = [];
-    for (let i = 0; i < ids.length; i += 1) {
+    // START is context only; never teach the model to emit it as normal text.
+    for (let i = 1; i < ids.length; i += 1) {
       const context = Array(this.contextSize).fill(0);
       const history = ids.slice(Math.max(0, i - this.contextSize), i);
       history.forEach((id, index) => { context[this.contextSize - history.length + index] = id; });
-      examples.push({ context, target: ids[i] ?? 1 });
+      examples.push({ context, target: ids[i] });
     }
+
     let finalLoss = 0;
     for (let epoch = 0; epoch < epochs; epoch += 1) {
       let totalLoss = 0;
@@ -155,9 +159,17 @@ export class RetzefSubwordNeuralModel {
     return { tokens: tokens.length, vocabulary: this.vocabulary.length, examples: examples.length, epochs, loss: this.loss };
   }
 
-  generate(prompt = "", { maxTokens = 120, temperature = 0.8, random = Math.random } = {}) {
+  generate(prompt = "", {
+    maxTokens = 120,
+    minTokens = 8,
+    temperature = 0.72,
+    topK = 12,
+    repetitionPenalty = 0.22,
+    random = Math.random
+  } = {}) {
     if (!this.trainedTokens) throw new Error("Subword neural model has not been trained");
     if (!Number.isInteger(maxTokens) || maxTokens < 1 || maxTokens > 1000) throw new RangeError("maxTokens must be from 1 to 1000");
+    if (!Number.isInteger(topK) || topK < 1 || topK > 128) throw new RangeError("topK must be from 1 to 128");
     const promptTokens = tokenizeSubwords(prompt);
     const ids = promptTokens.map(token => this.tokenToId.get(token) ?? 2);
     const generated = [];
@@ -165,9 +177,28 @@ export class RetzefSubwordNeuralModel {
       const context = Array(this.contextSize).fill(0);
       const history = ids.slice(-this.contextSize);
       history.forEach((id, index) => { context[this.contextSize - history.length + index] = id; });
-      const probabilities = softmax(this.forward(context).logits.map(value => value / Math.max(0.15, temperature)));
-      const nextId = sample(probabilities, random);
-      if (nextId === 1 || nextId === 0) break;
+      const logits = this.forward(context).logits.slice();
+      // Never emit the start or unknown marker as user-facing text.
+      logits[0] = -1e9;
+      logits[2] = -1e9;
+      if (generated.length < minTokens) logits[1] = -1e9;
+      const recent = ids.slice(-Math.max(8, this.contextSize));
+      for (const id of new Set(recent)) {
+        if (id > 2 && Number.isFinite(logits[id])) {
+          const count = recent.filter(item => item === id).length;
+          logits[id] -= repetitionPenalty * count;
+        }
+      }
+      const candidates = logits
+        .map((value, id) => ({ id, value }))
+        .filter(item => item.value > -1e8)
+        .sort((a, b) => b.value - a.value)
+        .slice(0, topK);
+      const probabilities = softmax(candidates.map(item => item.value), temperature);
+      const picked = candidates[sample(probabilities, random)];
+      if (!picked) break;
+      const nextId = picked.id;
+      if (nextId === 1) break;
       ids.push(nextId);
       generated.push(this.vocabulary[nextId]);
     }
@@ -177,7 +208,7 @@ export class RetzefSubwordNeuralModel {
   toJSON() {
     return {
       format: "retzef-subword-neural-v1",
-      architecture: "grapheme-embedding-tanh-softmax",
+      architecture: "grapheme-embedding-tanh-softmax-v2",
       embeddingSize: this.embeddingSize, hiddenSize: this.hiddenSize, contextSize: this.contextSize,
       vocabulary: this.vocabulary, embeddings: this.embeddings, w1: this.w1, b1: this.b1,
       w2: this.w2, b2: this.b2, trainedTokens: this.trainedTokens,
@@ -186,7 +217,7 @@ export class RetzefSubwordNeuralModel {
   }
 
   static fromJSON(data) {
-    if (!data || data.format !== "retzef-subword-neural-v1" || !Array.isArray(data.vocabulary)) {
+    if (!data || !["retzef-subword-neural-v1", "retzef-subword-neural-v2"].includes(data.format) || !Array.isArray(data.vocabulary)) {
       throw new Error("Unsupported or invalid Retzef subword neural model file");
     }
     const model = new RetzefSubwordNeuralModel({

@@ -1,6 +1,7 @@
 export function tokenize(text) {
   return String(text)
-    .toLocaleLowerCase("he")
+    .normalize("NFC")
+    .toLowerCase()
     .match(/[\p{L}\p{N}]+|[.!?،,;:]/gu) ?? [];
 }
 
