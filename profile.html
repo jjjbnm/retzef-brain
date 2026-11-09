@@ -1,28 +1,51 @@
 <!doctype html>
 <html lang="he" dir="rtl">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0a0d18"><title>הפרופיל שלי · Retzef Brain</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,#28336a 0,transparent 48%),#090c16;color:#f5f6ff;font-family:Heebo,Arial,sans-serif;padding:24px}
-    .top{max-width:900px;margin:0 auto 34px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{color:#fff;text-decoration:none;font-weight:900;letter-spacing:.08em}.brand b{color:#a7adff}.back{color:#d9ddff;text-decoration:none;border:1px solid #343d5c;border-radius:12px;padding:9px 14px;background:#151b2c}
-    main{max-width:620px;margin:0 auto}.eyebrow{color:#9da9ff;font-size:11px;letter-spacing:.18em;font-weight:800}.card{margin-top:12px;padding:clamp(22px,5vw,38px);border:1px solid #ffffff1c;border-radius:25px;background:linear-gradient(145deg,#171e34f5,#101525f7);box-shadow:0 28px 90px #0006}
-    h1{font-size:clamp(28px,6vw,40px);margin:6px 0 24px}.identity{display:flex;align-items:center;gap:20px;padding-bottom:25px;border-bottom:1px solid #ffffff18}.avatar-wrap{position:relative;width:108px;height:108px;flex:0 0 108px}.avatar{width:100%;height:100%;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#6878ff,#a05de6);border:3px solid #a8b0ff}.avatar-placeholder{display:grid;place-items:center;font-size:46px}.identity h2{font-size:22px;margin:0 0 3px}.identity p{margin:0;color:#9da8c5;font-size:14px}.details{display:grid;gap:13px;margin:24px 0}.detail{padding:14px 16px;background:#0c1222;border:1px solid #ffffff12;border-radius:13px}.detail small{display:block;color:#8793b5;font-size:11px;margin-bottom:4px}.detail strong{font-size:15px;overflow-wrap:anywhere}
-    .actions{display:flex;flex-wrap:wrap;gap:10px}.btn{border:0;border-radius:12px;padding:13px 18px;font:700 14px Heebo;cursor:pointer}.primary{background:linear-gradient(100deg,#6574ff,#925cf1);color:#fff}.secondary{background:#202943;color:#e5e8ff;border:1px solid #3b4669}.status{min-height:24px;color:#aeb8d5;font-size:13px;margin:14px 0 0}.status.error{color:#ffaaaa}.status.success{color:#8de2b4}.hint{color:#7f8aa9;font-size:12px;line-height:1.7;margin-top:20px}
-    @media(max-width:480px){body{padding:16px}.identity{align-items:flex-start;gap:15px}.avatar-wrap{width:82px;height:82px;flex-basis:82px}.avatar-placeholder{font-size:36px}.actions .btn{flex:1}}
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10131b"><title>הפרופיל שלי · Retzef Brain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:18px;background:radial-gradient(ellipse at 50% 0,#172b4c 0,transparent 52%),#080d17;color:#f7f8ff;font-family:Heebo,Arial,sans-serif}
+.page{width:min(100%,760px);min-height:calc(100vh - 36px);margin:auto;padding:18px 22px 30px;border:1px solid #493a31;border-radius:38px;background:#10131b;box-shadow:0 20px 70px #0008;position:relative}
+.top{height:58px;display:flex;align-items:center;justify-content:space-between}.brand{color:#f4f5ff;text-decoration:none;font-weight:900;letter-spacing:.06em;font-size:13px;opacity:.8}.brand span{color:#879bff}
+.back{width:56px;height:56px;border:0;border-radius:16px;background:#3e63dc;color:#fff;font-size:30px;line-height:1;display:grid;place-items:center;text-decoration:none;box-shadow:0 5px 0 #263d8c}
+h1{text-align:center;font-size:clamp(25px,5vw,34px);font-weight:900;margin:2px 0 32px}
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 8px 30px}
+.avatar-ring{width:164px;height:164px;border-radius:50%;padding:7px;background:linear-gradient(135deg,#3f67f0 0 45%,#e5e9ff 68%,#91e9ba);box-shadow:0 0 0 4px #10131b,0 0 0 7px #4168ec;margin:6px 0 45px}
+.avatar{width:100%;height:100%;display:block;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#667cf5,#a06be8);border:3px solid #dce6ff}
+.avatar-placeholder{display:grid;place-items:center;font-size:66px;color:white}
+h2{font-size:clamp(26px,5vw,36px);font-weight:900;margin:0 0 8px;line-height:1.25}.handle{font-size:19px;color:#e1e3ed;direction:ltr;unicode-bidi:embed;margin:0}
+.info{display:grid;gap:13px;margin:0 2px 24px}
+.info-row{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 20px;border:1px solid #1c4962;border-radius:23px;background:#081827;color:#f1f4ff;font-size:17px}
+.info-label{font-weight:800;white-space:nowrap}.info-value{color:#e1e6f3;overflow-wrap:anywhere;text-align:left}
+.online{display:flex;align-items:center;gap:10px}.dot{width:15px;height:15px;border-radius:50%;background:#13d889;box-shadow:0 0 14px #13d88999;flex:0 0 15px}
+.actions{border-top:1px solid #d5d5d5;padding-top:22px;margin-top:6px;display:grid;gap:12px}
+.btn{min-height:58px;border-radius:18px;padding:13px 18px;font:700 16px Heebo;cursor:pointer}
+.primary{background:#111923;color:#e9edff;border:1px solid #65452f;text-align:right}.secondary{background:#111923;color:#e9edff;border:1px solid #65452f}
+.status{min-height:22px;margin:0;color:#aeb8d5;font-size:13px;text-align:center}.status.error{color:#ffaaaa}.status.success{color:#8de2b4}
+@media(max-width:520px){body{padding:10px}.page{min-height:calc(100vh - 20px);padding:14px 14px 24px;border-radius:30px}.top{height:54px}h1{margin:0 0 27px}.avatar-ring{width:148px;height:148px;margin-bottom:40px}.info-row{min-height:72px;padding:14px 16px;font-size:16px;border-radius:20px}.btn{min-height:56px}}
+</style>
 </head>
 <body>
-  <header class="top"><a class="brand" href="/">RETZEF <b>BRAIN</b></a><a class="back" href="/">← חזרה לאזור העבודה</a></header>
-  <main><div class="eyebrow">RETZEF ACCOUNT</div><section class="card">
-    <h1>הפרופיל שלי</h1>
-    <div class="identity"><div class="avatar-wrap"><img id="profileAvatar" class="avatar avatar-placeholder" alt="תמונת הפרופיל" src=""></div><div><h2 id="profileDisplayName">טוען פרופיל…</h2><p id="profileUsername"></p></div></div>
-    <div class="details"><div class="detail"><small>שם משתמש</small><strong id="detailUsername">—</strong></div><div class="detail"><small>שם לתצוגה</small><strong id="detailDisplayName">—</strong></div></div>
-    <input id="profileFile" type="file" accept="image/*" hidden>
-    <div class="actions"><button class="btn primary" id="changePhoto" type="button">📷 שינוי תמונת פרופיל</button><button class="btn secondary" id="logout" type="button">התנתקות</button></div>
-    <p class="status" id="status" role="status" aria-live="polite"></p><p class="hint">התמונה נשמרת בחשבון שלך ותופיע ליד השם שלך באזור העבודה.</p>
-  </section></main>
-  <script src="/profile.js" defer></script>
+<main class="page">
+<header class="top"><a class="brand" href="/">RETZEF <span>BRAIN</span></a><a class="back" href="/" aria-label="חזרה">↑</a></header>
+<h1>פרטי משתמש</h1>
+<section class="hero">
+<div class="avatar-ring"><img id="profileAvatar" class="avatar avatar-placeholder" alt="תמונת פרופיל" src=""></div>
+<h2 id="profileDisplayName">טוען פרופיל…</h2><p class="handle" id="profileUsername"></p>
+</section>
+<section class="info" aria-label="פרטי החשבון">
+<div class="info-row"><span class="info-label">🟢 סטטוס חשבון</span><span class="info-value online"><span class="dot"></span>מחובר</span></div>
+<div class="info-row"><span class="info-label">👤 שם משתמש</span><span class="info-value" id="detailUsername">—</span></div>
+<div class="info-row"><span class="info-label">✨ שם לתצוגה</span><span class="info-value" id="detailDisplayName">—</span></div>
+</section>
+<section class="actions">
+<input id="profileFile" type="file" accept="image/*" hidden>
+<button class="btn primary" id="changePhoto" type="button">📷 שינוי תמונת פרופיל</button>
+<button class="btn secondary" id="logout" type="button">התנתקות מהחשבון</button>
+<p class="status" id="status" role="status" aria-live="polite"></p>
+</section>
+</main>
+<script src="/profile.js" defer></script>
 </body></html>
