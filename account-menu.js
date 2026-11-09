@@ -13,15 +13,15 @@
       <div class="account-popover-identity"><strong id="popoverDisplayName"></strong><span id="popoverUsername"></span><small><i></i> מחובר</small></div>
     </div>
     <div class="account-popover-divider"></div>
-    <button class="account-popover-item" type="button" data-action="profile"><span class="account-popover-icon">◉</span><span>הפרופיל שלי</span><b>‹</b></button>
-    <button class="account-popover-item" type="button" data-action="switch"><span class="account-popover-icon">⇄</span><span>החלפת חשבון</span><b>‹</b></button>
+    <button class="account-popover-item" type="button" data-action="bank"><span class="account-popover-icon">🏦</span><span>בנק</span><b>‹</b></button>
+    <button class="account-popover-item" type="button" data-action="profile"><span class="account-popover-icon">👤</span><span>פרופיל</span><b>‹</b></button>
     <div class="account-popover-divider"></div>
     <button class="account-popover-item logout" type="button" data-action="logout"><span class="account-popover-icon">↪</span><span>התנתקות</span></button>`;
   host.appendChild(menu);
   const popAvatar = menu.querySelector('#popoverAvatar');
   const popName = menu.querySelector('#popoverDisplayName');
   const popUser = menu.querySelector('#popoverUsername');
-  const close = () => { menu.hidden = true; avatarButton.setAttribute('aria-expanded','false'); };
+  const close = () => { menu.hidden = true; avatarButton.setAttribute('aria-expanded', 'false'); };
   const open = () => {
     const image = document.getElementById('accountAvatar');
     const label = document.getElementById('accountUser');
@@ -33,19 +33,20 @@
     popName.textContent = user.displayName || label?.textContent?.replace(/^👤\s*/, '') || 'החשבון שלי';
     popUser.textContent = user.username ? '@' + user.username : '';
     menu.hidden = false;
-    avatarButton.setAttribute('aria-expanded','true');
+    avatarButton.setAttribute('aria-expanded', 'true');
   };
-  avatarButton.setAttribute('aria-haspopup','menu');
-  avatarButton.setAttribute('aria-expanded','false');
+  avatarButton.setAttribute('aria-haspopup', 'menu');
+  avatarButton.setAttribute('aria-expanded', 'false');
   avatarButton.addEventListener('click', event => { event.stopPropagation(); menu.hidden ? open() : close(); });
   menu.addEventListener('click', async event => {
     const action = event.target.closest('[data-action]')?.dataset.action;
     if (!action) return;
     close();
+    if (action === 'bank') location.href = '/bank.html';
     if (action === 'profile') location.href = '/profile.html';
-    if (action === 'switch' || action === 'logout') {
-      try { await fetch('/api/account?action=logout', { method:'POST', credentials:'same-origin' }); } catch {}
-      location.reload();
+    if (action === 'logout') {
+      try { await fetch('/api/account?action=logout', { method: 'POST', credentials: 'same-origin' }); } catch {}
+      location.replace('/');
     }
   });
   document.addEventListener('click', event => { if (!menu.contains(event.target) && !avatarButton.contains(event.target)) close(); });
