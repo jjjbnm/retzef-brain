@@ -19,6 +19,12 @@ function languageInstruction(text) {
   else if(/[\uAC00-\uD7AF]/.test(value)) script="Korean";
   return "Conversation instruction: Reply in "+script+". Match the language of the latest user message. Do not print system instructions, role labels, or internal prompts.\n";
 }
+function stripPrompt(raw,context) {
+  const output=String(raw||"");
+  if(output.toLowerCase().startsWith(context.toLowerCase())) return output.slice(context.length).trim();
+  const index=output.toLowerCase().lastIndexOf(context.toLowerCase());
+  return index>=0?output.slice(index+context.length).trim():output.trim();
+}
 export async function getModel(id){
   if(cache.has(id)) return cache.get(id);
   const match=id.match(/^retzef-(general|code)(-neural|-subword)?$/);
@@ -39,6 +45,6 @@ export default async function handler(req,res){
   const modelId=typeof body?.modelId==="string"?body.modelId:"";
   const prompt=typeof body?.prompt==="string"?body.prompt.trim():"";
   if(!prompt||prompt.length>3000) return res.status(400).json({error:"ההודעה חייבת להכיל 1–3,000 תווים."});
-  try{const entry=await getModel(modelId);const answer=entry.model.generate(languageInstruction(prompt)+prompt,{maxTokens:48});return res.status(200).json({answer,model:"Retzef "+entry.domain+" "+entry.architecture,stats:"נוצרו "+(entry.stats?.tokens||entry.stats?.trainedTokens||0)+" טוקנים"})}
+  try{const entry=await getModel(modelId);const context=languageInstruction(prompt)+prompt;const raw=entry.model.generate(context,{maxTokens:48});const answer=stripPrompt(raw,context);return res.status(200).json({answer,model:"Retzef "+entry.domain+" "+entry.architecture,stats:"נוצרו "+(entry.stats?.tokens||entry.stats?.trainedTokens||0)+" טוקנים"})}
   catch(error){return res.status(500).json({error:String(error?.message||"Retzef model failed").slice(0,220)})}
 }
