@@ -9,6 +9,29 @@
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+<section class="entry-chooser" id="entryChooser" aria-labelledby="entryTitle">
+  <div class="entry-glow entry-glow-one"></div><div class="entry-glow entry-glow-two"></div>
+  <div class="entry-brand"><span class="brand-icon">R</span><span>RETZEF <b>BRAIN</b><small>DEVELOPER STUDIO</small></span></div>
+  <div class="entry-content">
+    <div class="kicker"><span></span> WELCOME TO RETZEF BRAIN</div>
+    <h1 id="entryTitle">מה תרצו לעשות היום?</h1>
+    <p class="entry-subtitle">בחרו סביבת עבודה כדי להמשיך.</p>
+    <div class="entry-options">
+      <a class="entry-option entry-ai" href="#ai-workspace" id="enterAi">
+        <span class="entry-option-icon">✦</span><span class="entry-option-tag">AI WORKSPACE</span>
+        <strong>AI</strong><span class="entry-option-desc">בדיקת מודלים, יצירת API Keys, אימון מודלים וכלי פיתוח.</span>
+        <span class="entry-option-cta">כניסה ל־AI <b>←</b></span>
+      </a>
+      <a class="entry-option entry-oauth" href="/oauth.html" id="enterOAuth">
+        <span class="entry-option-icon">⌘</span><span class="entry-option-tag">AUTHENTICATION</span>
+        <strong>OAuth</strong><span class="entry-option-desc">ניהול חיבורי OAuth והרשאות לאפליקציות ולשירותים.</span>
+        <span class="entry-option-cta">כניסה ל־OAuth <b>←</b></span>
+      </a>
+    </div>
+    <div class="entry-footnote"><span class="entry-status-dot"></span> RETZEF BRAIN · ONE PLACE, TWO WORKSPACES</div>
+  </div>
+</section>
+
 <div class="ambient a1"></div><div class="ambient a2"></div>
 <header class="topbar">
   <a class="brand" href="#home"><span class="brand-icon">R</span><span>RETZEF <b>BRAIN</b><small>DEVELOPER STUDIO</small></span></a>
@@ -16,7 +39,7 @@
   <div class="top-actions"><span class="live"><i></i> RETZEF BRAIN · BETA</span><button class="menu-btn" id="menuBtn" aria-label="פתח תפריט">☰</button></div>
 </header>
 <main id="home">
-<section class="hero container home-hero">
+<section class="hero container home-hero" id="ai-workspace">
   <div class="hero-copy"><div class="kicker"><span></span> YOUR AI. YOUR API. YOUR WORKSPACE.</div>
     <h1>בונים עם AI.<br><em>מתחברים בדרך שלכם.</em></h1>
     <p>בחרו מודל ניסיוני, צרו API Key מאובטח וחברו את Retzef Brain לאתר, לבוט או לאפליקציה. כל הכלים החשובים נמצאים במקום אחד.</p>
@@ -105,5 +128,20 @@ console.log(data.choices[0].message.content);</code></pre></div>
 <section class="section container bottom-grid"><div class="mini-card"><span class="mini-icon">🔌</span><h3>Plugin Center</h3><p>GitHub · Vercel · YouTube · TikTok · Discord</p><a href="/plugins.html">פתח Plugins ↗</a></div><div class="mini-card"><span class="mini-icon">⌘</span><h3>Code Tools</h3><p>ניתוח קוד, הסברים, תכנון בדיקות ותכנון פרויקטים.</p><a href="/api/code-tools">Code Tools API ↗</a></div><div class="mini-card"><span class="mini-icon">⌁</span><h3>API Status</h3><p>בדיקת זמינות השירות וגרסת השרת.</p><a href="/api/health">בדוק סטטוס ↗</a></div></section>
 </main>
 <footer class="footer container"><a class="brand" href="#home"><span class="brand-icon">R</span><span>RETZEF <b>BRAIN</b></span></a><span>Experimental AI infrastructure · Built by Retzef</span><a href="https://github.com/jjjbnm/retzef-brain" target="_blank" rel="noopener">GitHub ↗</a></footer>
+<script>
+(() => {
+  const chooser = document.getElementById('entryChooser');
+  const enterAi = document.getElementById('enterAi');
+  if (!chooser || !enterAi) return;
+  enterAi.addEventListener('click', (event) => {
+    event.preventDefault();
+    chooser.classList.add('entry-chooser-exit');
+    window.setTimeout(() => {
+      chooser.remove();
+      document.getElementById('ai-workspace')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 220);
+  });
+})();
+</script>
 <script type="module" src="/studio.js"></script>
 </body></html>
