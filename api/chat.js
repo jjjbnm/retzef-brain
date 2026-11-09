@@ -29,6 +29,42 @@ export function detectLanguageCode(text) {
   return "en";
 }
 
+// Retzef AI clients may send their system prompt and conversation as one string.
+// Extract the final user turn so internal instructions are never treated as user text.
+export function extractLatestUserMessage(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  const pattern = /(?:^|\n)\s*user\s*:\s*([\s\S]*?)(?=\n\s*(?:assistant(?:\[[^\]]+\])?|system|developer|user)\s*:|$)/gi;
+  let match;
+  let latest = "";
+  while ((match = pattern.exec(text)) !== null) latest = match[1].trim();
+  const cleaned = (latest || text)
+    .replace(/\n\s*assistant(?:\[[^\]]+\])?\s*:\s*$/i, "")
+    .trim();
+  return cleaned.slice(0, 12000);
+}
+
+export function simpleConversationReply(value) {
+  const text = String(value || "").trim().toLocaleLowerCase();
+  const normalized = text.replace(/[.!?؟،,;:]+/g, "").trim();
+  const greetings = new Set(["היי", "הי", "שלום", "אהלן", "הלו", "בוקר טוב", "ערב טוב", "hi", "hello", "hey", "good morning", "good evening", "hola", "مرحبا"]);
+  if (greetings.has(normalized)) {
+    if (/^[\u0590-\u05FF\s]+$/.test(normalized)) return "היי! 😊 איך אפשר לעזור לך היום?";
+    if (/^[\u0600-\u06FF\s]+$/.test(normalized)) return "مرحباً! 😊 كيف يمكنني مساعدتك اليوم؟";
+    if (["hola"].includes(normalized)) return "¡Hola! 😊 ¿En qué puedo ayudarte?";
+    return "Hey! 😊 How can I help you today?";
+  }
+  if (["תודה", "תודה רבה", "thanks", "thank you"].includes(normalized)) {
+    return /[\u0590-\u05FF]/.test(normalized) ? "בשמחה! 😊" : "You're welcome! 😊";
+  }
+  if (["מי אתה", "מי את", "who are you"].includes(normalized)) {
+    return /[\u0590-\u05FF]/.test(normalized)
+      ? "אני Retzef AI, עוזר ניסיוני שנבנה על ידי Retzef Brain. 😊"
+      : "I'm Retzef AI, an experimental assistant built with Retzef Brain. 😊";
+  }
+  return null;
+}
+
 export function buildModelPrompt(text, modelId) {
   const language = detectLanguageCode(text);
   const role = modelId === "retzef-code"
@@ -86,6 +122,11 @@ export async function trainNativeModel(modelId, examples = []) {
 
 export async function generateRetzefResponse({ modelId, prompt, serializedModel = null }) {
   if (!definitions[modelId]) throw new Error("Unknown Retzef model.");
+  const userMessage = extractLatestUserMessage(prompt);
+  if (!userMessage) return "שלח הודעה ואשמח לעזור. 😊";
+  const simpleReply = simpleConversationReply(userMessage);
+  if (simpleReply) return simpleReply;
+
   const entry = serializedModel
     ? { model: restoreModel(modelId, serializedModel) }
     : cache.get(modelId) || null;
@@ -95,7 +136,7 @@ export async function generateRetzefResponse({ modelId, prompt, serializedModel 
     model = restoreModel(modelId, trained.weights);
     cache.set(modelId, { model });
   }
-  const context = "User: " + String(prompt).trim() + "\nAssistant[" + detectLanguageCode(prompt) + "]:";
+  const context = "User: " + userMessage + "\nAssistant[" + detectLanguageCode(userMessage) + "]:";
   const options = modelId === "retzef-general"
     ? { maxTokens: 120, minTokens: 8, temperature: 0.7, topK: 10, repetitionPenalty: 0.24 }
     : { maxTokens: modelId === "retzef-code" ? 80 : 120, temperature: modelId === "retzef-code" ? 0.25 : 0.72 };
