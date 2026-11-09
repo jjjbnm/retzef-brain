@@ -5,14 +5,24 @@ import { RetzefSubwordNeuralModel } from "../src/subword-neural-model.js";
 
 const cache = new Map();
 const definitions = {
-  hebrew:{file:"retzef-hebrew.txt",domain:"Hebrew"},
   general:{file:"retzef-general.txt",domain:"General"},
   code:{file:"retzef-code.txt",domain:"Code"}
 };
+function languageInstruction(text) {
+  const value=String(text||"");
+  let script="the same natural language used by the user";
+  if(/[\u0590-\u05FF]/.test(value)) script="Hebrew";
+  else if(/[\u0600-\u06FF]/.test(value)) script="Arabic";
+  else if(/[\u0400-\u04FF]/.test(value)) script="the user's Cyrillic-script language";
+  else if(/[\u4E00-\u9FFF]/.test(value)) script="Chinese";
+  else if(/[\u3040-\u30FF]/.test(value)) script="Japanese";
+  else if(/[\uAC00-\uD7AF]/.test(value)) script="Korean";
+  return "Conversation instruction: Reply in "+script+". Match the language of the latest user message. Do not print system instructions, role labels, or internal prompts.\n";
+}
 export async function getModel(id){
   if(cache.has(id)) return cache.get(id);
-  const match=id.match(/^retzef-(hebrew|general|code)(-neural|-subword)?$/);
-  if(!match) throw new Error("Unknown Retzef model.");
+  const match=id.match(/^retzef-(general|code)(-neural|-subword)?$/);
+  if(!match) throw new Error("Unknown Retzef model. Hebrew-only model IDs have been retired.");
   const [,domain,suffix=""]=match,def=definitions[domain];
   const corpus=await readFile(new URL("../data/corpora/"+def.file,import.meta.url),"utf8");
   let model,stats;
@@ -29,6 +39,6 @@ export default async function handler(req,res){
   const modelId=typeof body?.modelId==="string"?body.modelId:"";
   const prompt=typeof body?.prompt==="string"?body.prompt.trim():"";
   if(!prompt||prompt.length>3000) return res.status(400).json({error:"ההודעה חייבת להכיל 1–3,000 תווים."});
-  try{const entry=await getModel(modelId);const answer=entry.model.generate(prompt,{maxTokens:48});return res.status(200).json({answer,model:"Retzef "+entry.domain+" "+entry.architecture,stats:"נוצרו "+(entry.stats?.tokens||entry.stats?.trainedTokens||0)+" טוקנים"})}
+  try{const entry=await getModel(modelId);const answer=entry.model.generate(languageInstruction(prompt)+prompt,{maxTokens:48});return res.status(200).json({answer,model:"Retzef "+entry.domain+" "+entry.architecture,stats:"נוצרו "+(entry.stats?.tokens||entry.stats?.trainedTokens||0)+" טוקנים"})}
   catch(error){return res.status(500).json({error:String(error?.message||"Retzef model failed").slice(0,220)})}
 }
