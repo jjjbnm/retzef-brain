@@ -1,11 +1,13 @@
 import { registerAccount, authenticateAccount, createAccountSession, getAccountFromRequest, deleteAccountSession, readSessionCookie, sessionCookie, validateUsername, updateAccountAvatar } from "../brain/account-store.js";
 import { claimLegacyApiKeys, validOwnerId } from "../brain/key-store.js";
+import { handleOAuth } from "../brain/oauth-provider.js";
 import { claimLegacyTrainingData } from "../brain/training-store.js";
 function readBody(req){let body=req.body;if(typeof body==="string"){try{return JSON.parse(body)}catch{return null}}return body||{}}
 export default async function handler(req,res){
  res.setHeader("Cache-Control","no-store");res.setHeader("X-Content-Type-Options","nosniff");
  const action=String(req.query?.action||"");
  try{
+  if(action.startsWith("oauth-")) return await handleOAuth(req,res,action.slice(6));
   if(action==="me"){
    if(req.method!=="GET")return res.status(405).json({error:"Method not allowed"});
    const user=await getAccountFromRequest(req);if(!user)return res.status(401).json({ok:false,error:"Not signed in"});return res.status(200).json({ok:true,user});

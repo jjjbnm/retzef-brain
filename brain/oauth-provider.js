@@ -1,6 +1,5 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { neon } from "@neondatabase/serverless";
-import { getAccountFromRequest } from "../brain/account-store.js";
 
 let sqlClient, schemaPromise;
 const now = () => Date.now();
@@ -38,7 +37,7 @@ async function authorize(req,res,s){
  const content=`<h1>אישור התחברות</h1><p class="muted"><b>${esc(client.name)}</b> מבקשת הרשאה לחשבון Retzef Brain שלך.</p><div class="scope"><b>פרטי פרופיל · profile</b><br><small>גישה לשם התצוגה ולשם המשתמש שלך.</small></div><p class="muted">ההרשאה תינתן רק לאחר אישורך. אפשר לבטל אותה על ידי ביטול האפליקציה במרכז המפתחים.</p><div class="row"><button id="approve">אישור והמשך</button><button id="deny" class="secondary">דחייה</button></div><p id="msg" class="muted"></p><script>const data={id:${JSON.stringify(id)},csrf:${JSON.stringify(csrf)}};async function go(approve){const m=document.getElementById('msg');m.textContent='מעבד…';try{const r=await fetch('/api/oauth?action=decision',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({...data,approve})});const d=await r.json();if(!r.ok)throw Error(d.error||'שגיאה');location.href=d.redirect;}catch(e){m.textContent=e.message}}document.getElementById('approve').onclick=()=>go(true);document.getElementById('deny').onclick=()=>go(false);</script>`;
  return sendHtml(res,200,page("אישור OAuth",content));
 }
-export default async function handler(req,res){res.setHeader("Cache-Control","no-store");res.setHeader("X-Content-Type-Options","nosniff");res.setHeader("Referrer-Policy","no-referrer");const action=String(req.query?.action||"");
+export async function handleOAuth(req,res,action){
  try{const s=await schema();
   if(action==="apps"){
    const user=await getAccountFromRequest(req);if(!user)return res.status(401).json({error:"יש להתחבר לחשבון Retzef Brain."});
