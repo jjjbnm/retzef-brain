@@ -9,6 +9,9 @@ function db(){ if(!process.env.DATABASE_URL) throw new Error("DATABASE_URL is no
 async function schema(){
  if(!schemaPromise) schemaPromise=(async()=>{ const s=db();
   await s`CREATE TABLE IF NOT EXISTS retzef_oauth_clients (client_id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, name TEXT NOT NULL, secret_hash TEXT NOT NULL, redirect_uris TEXT NOT NULL, created_at BIGINT NOT NULL, revoked_at BIGINT)`;
+  await s`ALTER TABLE retzef_oauth_clients ADD COLUMN IF NOT EXISTS app_details TEXT NOT NULL DEFAULT '{}'`;
+  await s`CREATE TABLE IF NOT EXISTS retzef_oauth_history (id TEXT PRIMARY KEY, client_id TEXT NOT NULL, owner_id TEXT NOT NULL, event TEXT NOT NULL, created_at BIGINT NOT NULL)`;
+  await s`CREATE INDEX IF NOT EXISTS retzef_oauth_history_client_idx ON retzef_oauth_history(client_id, created_at DESC)`;
   await s`CREATE INDEX IF NOT EXISTS retzef_oauth_clients_owner_idx ON retzef_oauth_clients(owner_id, created_at DESC)`;
   await s`CREATE TABLE IF NOT EXISTS retzef_oauth_requests (id TEXT PRIMARY KEY, csrf_hash TEXT NOT NULL, client_id TEXT NOT NULL, redirect_uri TEXT NOT NULL, scope TEXT NOT NULL, state TEXT NOT NULL, code_challenge TEXT NOT NULL, account_id TEXT NOT NULL, created_at BIGINT NOT NULL, expires_at BIGINT NOT NULL)`;
   await s`CREATE TABLE IF NOT EXISTS retzef_oauth_codes (code_hash TEXT PRIMARY KEY, client_id TEXT NOT NULL, account_id TEXT NOT NULL, redirect_uri TEXT NOT NULL, scope TEXT NOT NULL, code_challenge TEXT NOT NULL, created_at BIGINT NOT NULL, expires_at BIGINT NOT NULL, used_at BIGINT)`;
@@ -41,10 +44,47 @@ export async function handleOAuth(req,res,action){
  try{const s=await schema();
   if(action==="apps"){
    const user=await getAccountFromRequest(req);if(!user)return res.status(401).json({error:"יש להתחבר לחשבון Retzef Brain."});
-   if(req.method==="GET"){const rows=await s`SELECT client_id,name,redirect_uris,created_at FROM retzef_oauth_clients WHERE owner_id=${user.id} AND revoked_at IS NULL ORDER BY created_at DESC`;return res.status(200).json({ok:true,apps:rows.map(x=>({clientId:x.client_id,name:x.name,redirectUris:JSON.parse(x.redirect_uris),createdAt:Number(x.created_at)}))});}
-   if(req.method==="POST"){const b=body(req),name=String(b.name||"").trim(),redirects=Array.isArray(b.redirectUris)?[...new Set(b.redirectUris.map(x=>String(x).trim()).filter(Boolean))]:[];if(name.length<2||name.length>60)return res.status(400).json({error:"שם האפליקציה חייב להכיל 2–60 תווים."});if(!redirects.length||redirects.length>10||redirects.some(x=>!validRedirect(x)))return res.status(400).json({error:"יש להזין 1–10 כתובות Redirect URI תקינות (HTTPS, או localhost לפיתוח)."});const clientId="rzf_client_"+b64(18),clientSecret="rzf_secret_"+b64(32),created=now();await s`INSERT INTO retzef_oauth_clients(client_id,owner_id,name,secret_hash,redirect_uris,created_at) VALUES(${clientId},${user.id},${name},${hash(clientSecret)},${JSON.stringify(redirects)},${created})`;return res.status(201).json({ok:true,client:{clientId,clientSecret,name,redirectUris:redirects,createdAt:created},warning:"שמור את ה־Client Secret עכשיו. הוא מוצג פעם אחת בלבד."});}
-   if(req.method==="DELETE"){const id=String(body(req).clientId||"");const rows=await s`UPDATE retzef_oauth_clients SET revoked_at=${now()} WHERE client_id=${id} AND owner_id=${user.id} AND revoked_at IS NULL RETURNING client_id`;if(!rows.length)return res.status(404).json({error:"האפליקציה לא נמצאה."});await s`UPDATE retzef_oauth_tokens SET revoked_at=${now()} WHERE client_id=${id} AND revoked_at IS NULL`;return res.status(200).json({ok:true,revoked:true});}
+   if(req.method==="GET"){
+    const rows=await s`SELECT client_id,name,redirect_uris,created_at,app_details FROM retzef_oauth_clients WHERE owner_id=${user.id} AND revoked_at IS NULL ORDER BY created_at DESC`;
+    return res.status(200).json({ok:true,apps:rows.map(x=>({clientId:x.client_id,name:x.name,redirectUris:JSON.parse(x.redirect_uris),createdAt:Number(x.created_at),details:(()=>{try{return JSON.parse(x.app_details||"{}") }catch{return {}}})()}))});
+   }
+   if(req.method==="POST"){
+    const b=body(req),name=String(b.name||"").trim(),redirects=Array.isArray(b.redirectUris)?[...new Set(b.redirectUris.map(x=>String(x).trim()).filter(Boolean))]:[];
+    if(name.length<2||name.length>50)return res.status(400).json({error:"שם האפליקציה חייב להכיל 2–50 תווים."});
+    if(!redirects.length||redirects.length>10||redirects.some(x=>!validRedirect(x)))return res.status(400).json({error:"יש להזין 1–10 כתובות Redirect URI תקינות (HTTPS, או localhost לפיתוח)."});
+    const clientId="rzf_client_"+b64(18),clientSecret="rzf_secret_"+b64(32),created=now();
+    const details={category:"Others",description:"",iconData:"",termsUrl:"",privacyUrl:"",websiteUrl:"",platforms:["Web"],reviewText:"",products:["Login Kit"],scopes:["user.info.basic"],version:"Draft",status:"Draft",roles:[{email:user.username,role:"Owner",status:"Joined"}]};
+    await s`INSERT INTO retzef_oauth_clients(client_id,owner_id,name,secret_hash,redirect_uris,created_at,app_details) VALUES(${clientId},${user.id},${name},${hash(clientSecret)},${JSON.stringify(redirects)},${created},${JSON.stringify(details)})`;
+    await s`INSERT INTO retzef_oauth_history(id,client_id,owner_id,event,created_at) VALUES(${b64(16)},${clientId},${user.id},'App created',${created})`;
+    return res.status(201).json({ok:true,client:{clientId,clientSecret,name,redirectUris:redirects,createdAt:created,details},warning:"שמור את ה־Client Secret עכשיו. הוא מוצג פעם אחת בלבד."});
+   }
+   if(req.method==="PUT"){
+    const b=body(req),id=String(b.clientId||""),name=String(b.name||"").trim(),redirects=Array.isArray(b.redirectUris)?[...new Set(b.redirectUris.map(x=>String(x).trim()).filter(Boolean))]:[],d=b.details&&typeof b.details==="object"?b.details:{};
+    if(name.length<2||name.length>50)return res.status(400).json({error:"שם האפליקציה חייב להכיל 2–50 תווים."});
+    if(!redirects.length||redirects.length>10||redirects.some(x=>!validRedirect(x)))return res.status(400).json({error:"יש להזין 1–10 כתובות Redirect URI תקינות."});
+    const platforms=["Web","Desktop","Android","iOS"].filter(x=>Array.isArray(d.platforms)&&d.platforms.includes(x));
+    const products=["Login Kit","Display API","Share Kit","Content Posting API"].filter(x=>Array.isArray(d.products)&&d.products.includes(x));
+    const allowedScopes=["user.info.basic","user.info.profile","user.info.stats","video.list","video.upload","video.publish"];
+    const scopes=allowedScopes.filter(x=>Array.isArray(d.scopes)&&d.scopes.includes(x));
+    const category=String(d.category||"Others").slice(0,40),description=String(d.description||"").trim().slice(0,120);
+    const iconData=String(d.iconData||"");if(iconData&&(!/^data:image\/(png|jpeg|jpg);base64,/.test(iconData)||iconData.length>7_000_000))return res.status(400).json({error:"האייקון חייב להיות PNG/JPEG ועד 5MB."});
+    for(const u of [d.termsUrl,d.privacyUrl,d.websiteUrl].filter(Boolean)){try{const x=new URL(String(u));if(x.protocol!=="https:")throw 0;}catch{return res.status(400).json({error:"קישורי האתר, התנאים והפרטיות חייבים להיות כתובות HTTPS תקינות."});}}
+    const details={category,description,iconData,termsUrl:String(d.termsUrl||"").slice(0,1000),privacyUrl:String(d.privacyUrl||"").slice(0,1000),websiteUrl:String(d.websiteUrl||"").slice(0,1000),platforms,reviewText:String(d.reviewText||"").slice(0,1000),products,scopes,version:String(d.version||"Draft").slice(0,40),status:String(d.status||"Draft").slice(0,30),roles:[{email:user.username,role:"Owner",status:"Joined"}]};
+    const rows=await s`UPDATE retzef_oauth_clients SET name=${name},redirect_uris=${JSON.stringify(redirects)},app_details=${JSON.stringify(details)} WHERE client_id=${id} AND owner_id=${user.id} AND revoked_at IS NULL RETURNING client_id`;
+    if(!rows.length)return res.status(404).json({error:"האפליקציה לא נמצאה."});
+    await s`INSERT INTO retzef_oauth_history(id,client_id,owner_id,event,created_at) VALUES(${b64(16)},${id},${user.id},'App details updated',${now()})`;
+    return res.status(200).json({ok:true,details});
+   }
+   if(req.method==="DELETE"){
+    const id=String(body(req).clientId||"");const rows=await s`UPDATE retzef_oauth_clients SET revoked_at=${now()} WHERE client_id=${id} AND owner_id=${user.id} AND revoked_at IS NULL RETURNING client_id`;
+    if(!rows.length)return res.status(404).json({error:"האפליקציה לא נמצאה."});await s`UPDATE retzef_oauth_tokens SET revoked_at=${now()} WHERE client_id=${id} AND revoked_at IS NULL`;return res.status(200).json({ok:true,revoked:true});
+   }
    return res.status(405).json({error:"Method not allowed"});
+  }
+  if(action==="history"){
+   const user=await getAccountFromRequest(req);if(!user)return res.status(401).json({error:"יש להתחבר לחשבון Retzef Brain."});
+   const id=String(req.query?.client_id||"");const owned=await s`SELECT client_id FROM retzef_oauth_clients WHERE client_id=${id} AND owner_id=${user.id} LIMIT 1`;if(!owned.length)return res.status(404).json({error:"האפליקציה לא נמצאה."});
+   const rows=await s`SELECT event,created_at FROM retzef_oauth_history WHERE client_id=${id} AND owner_id=${user.id} ORDER BY created_at DESC LIMIT 50`;return res.status(200).json({ok:true,history:rows.map(x=>({event:x.event,createdAt:Number(x.created_at)}))});
   }
   if(action==="authorize"){if(req.method!=="GET")return res.status(405).end();return await authorize(req,res,s);}
   if(action==="decision"){
