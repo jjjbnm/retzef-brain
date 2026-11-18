@@ -31,12 +31,17 @@ const models = [
   }
 ];
 
+function providerConfigured(id) {
+  const modelEnv = { "retzef-general": "RETZEF_GENERAL_MODEL", "retzef-code": "RETZEF_CODE_MODEL", "retzef-creative": "RETZEF_CREATIVE_MODEL" };
+  return Boolean(process.env.RETZEF_AI_BASE_URL && process.env.RETZEF_AI_API_KEY && (process.env[modelEnv[id]] || process.env.RETZEF_AI_MODEL));
+}
+
 export default function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
   return res.status(200).json({
     brand: "Retzef",
-    models,
+    models: models.map((model) => ({ ...model, runtime: providerConfigured(model.id) ? "external-provider-configured" : "native-experimental" })),
     count: models.length,
     pluginProtocol: "openai-tools",
     pluginProviders: ["github", "vercel", "youtube", "tiktok", "discord"]

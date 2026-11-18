@@ -3,6 +3,7 @@ import { RetzefNgramModel } from "../src/model.js";
 import { RetzefNeuralModel } from "../src/neural-model.js";
 import { RetzefSubwordNeuralModel } from "../src/subword-neural-model.js";
 import { retrieveGroundedAnswer } from "../src/retrieval.js";
+import { generateProviderResponse, getProviderConfig } from "../brain/provider-adapter.js";
 
 const cache = new Map();
 const definitions = {
@@ -121,12 +122,15 @@ export async function trainNativeModel(modelId, examples = []) {
   return { weights: model.toJSON(), stats, trainingExamples: cleanExamples.length };
 }
 
-export async function generateRetzefResponse({ modelId, prompt, serializedModel = null, trainingExamples = [] }) {
+export async function generateRetzefResponse({ modelId, prompt, messages = null, serializedModel = null, trainingExamples = [] }) {
   if (!definitions[modelId]) throw new Error("Unknown Retzef model.");
   const userMessage = extractLatestUserMessage(prompt);
   if (!userMessage) return "שלח הודעה ואשמח לעזור. 😊";
   const simpleReply = simpleConversationReply(userMessage);
   if (simpleReply) return simpleReply;
+
+  const providerAnswer = await generateProviderResponse({ modelId, prompt, messages, latestUser: userMessage, trainingExamples });
+  if (providerAnswer) return providerAnswer;
 
   const corpus = await readBaseCorpus(modelId);
   const grounded = retrieveGroundedAnswer({
@@ -166,11 +170,12 @@ export default async function handler(req, res) {
   }
   const modelId = typeof body?.modelId === "string" ? body.modelId : "retzef-general";
   const prompt = typeof body?.prompt === "string" ? body.prompt.trim() : "";
+  const messages = Array.isArray(body?.messages) ? body.messages : null;
   if (!definitions[modelId]) return res.status(400).json({ error: "Unknown Retzef model." });
   if (!prompt || prompt.length > 12000) return res.status(400).json({ error: "ההודעה חייבת להכיל 1–12,000 תווים." });
   try {
-    const answer = await generateRetzefResponse({ modelId, prompt });
-    return res.status(200).json({ answer, model: names[modelId], engine: "retzef-grounded-retrieval-v1" });
+    const answer = await generateRetzefResponse({ modelId, prompt, messages });
+    return res.status(200).json({ answer, model: names[modelId], engine: getProviderConfig(modelId) ? "retzef-provider-v1" : "retzef-grounded-retrieval-v1" });
   } catch (error) {
     return res.status(500).json({ error: String(error?.message || "Retzef model failed").slice(0, 220) });
   }

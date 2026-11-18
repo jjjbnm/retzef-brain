@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     if (!latestUser || !String(latestUser.content).trim()) return res.status(400).json({ error: { message: "messages must contain at least one text user message", type: "invalid_request_error" } });
     const prompt = textMessages.map(m => String(m.role || "user") + ": " + m.content).join("\n").slice(-12000);
     const trainingExamples = await listTrainingExamples(identity.id, modelId, 8);
-    const answer = await generateRetzefResponse({ modelId, prompt, trainingExamples });
+    const answer = await generateRetzefResponse({ modelId, prompt, messages: textMessages, trainingExamples });
     return res.status(200).json({
       id: "chatcmpl_" + Date.now().toString(36),
       object: "chat.completion",
