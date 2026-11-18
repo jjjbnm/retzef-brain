@@ -30,11 +30,11 @@ function conversationMessages(prompt, suppliedMessages, latestUser) {
   const text = String(prompt || "");
   const pattern = /(?:^|\n)\s*(user|assistant)\s*:\s*/gi;
   const hits = []; let match;
-  while ((match = pattern.exec(text)) !== null) hits.push({ role: match[1].toLowerCase(), start: pattern.lastIndex });
+  while ((match = pattern.exec(text)) !== null) hits.push({ role: match[1].toLowerCase(), start: pattern.lastIndex, markerStart: match.index });
   if (!hits.length) return [{ role: "user", content: latestUser }];
   return hits.slice(-16).map((hit, index, all) => ({
     role: hit.role,
-    content: text.slice(hit.start, index + 1 < all.length ? all[index + 1].start - all[index + 1].role.length - 1 : text.length).trim().slice(-6000)
+    content: text.slice(hit.start, index + 1 < all.length ? all[index + 1].markerStart : text.length).trim().slice(-6000)
   })).filter((m) => m.content);
 }
 
