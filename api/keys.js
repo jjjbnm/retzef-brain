@@ -1,5 +1,6 @@
 import { createApiKey, listApiKeys, revokeApiKey } from "../brain/key-store.js";
 import { getAccountFromRequest } from "../brain/account-store.js";
+import { isSupportedModel } from "../src/model-catalog.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -23,7 +24,7 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
       const name = typeof body?.name === "string" ? body.name.trim().slice(0, 40) : "My Retzef App";
       if (!name) return res.status(400).json({ error: "Key name is required." });
-      const model = typeof body?.model === "string" && /^retzef-[a-z0-9-]{1,80}$/.test(body.model)
+      const model = typeof body?.model === "string" && isSupportedModel(body.model)
         ? body.model : "retzef-code";
       const result = await createApiKey(ownerId, name, model);
       return res.status(201).json({

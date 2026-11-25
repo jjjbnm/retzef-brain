@@ -5,9 +5,9 @@ import os from "node:os";
 import path from "node:path";
 import { listModels, trainAllModels, loadModel } from "../src/model-registry.js";
 
-test("catalog exposes two language-neutral experimental model profiles", () => {
+test("catalog exposes all three language-neutral experimental model profiles", () => {
   const models = listModels();
-  assert.deepEqual(models.map(model => model.id), ["retzef-general", "retzef-code"]);
+  assert.deepEqual(models.map(model => model.id), ["retzef-general", "retzef-code", "retzef-creative"]);
   assert.ok(models.every(model => model.architecture === "ngram"));
 });
 
@@ -15,7 +15,7 @@ test("all remaining models can be trained, saved, and loaded", async () => {
   const modelsDir = await mkdtemp(path.join(os.tmpdir(), "retzef-models-"));
   try {
     const results = await trainAllModels({ modelsDir });
-    assert.equal(results.length, 2);
+    assert.equal(results.length, 3);
     assert.ok(results.every(result => result.tokens > 0));
 
     const model = await loadModel("retzef-general", { modelsDir });

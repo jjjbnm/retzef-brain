@@ -6,11 +6,12 @@ import path from "node:path";
 import { RetzefNeuralModel } from "../src/neural-model.js";
 import { listNeuralModels, loadNeuralModel } from "../src/neural-registry.js";
 
-test("neural registry lists the two language-neutral selectable models", () => {
+test("neural registry lists all three language-neutral selectable models", () => {
   const models = listNeuralModels();
   assert.deepEqual(models.map(model => model.id), [
     "retzef-general-neural",
-    "retzef-code-neural"
+    "retzef-code-neural",
+    "retzef-creative-neural"
   ]);
 });
 

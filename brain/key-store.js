@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { neon } from "@neondatabase/serverless";
+import { isSupportedModel } from "../src/model-catalog.js";
 
 const TTL_SECONDS = 60 * 60 * 24 * 90;
 let sqlClient;
@@ -64,7 +65,7 @@ export async function createApiKey(ownerId, name, model = "retzef-code") {
   const secret = "rzf_live_" + randomBytes(32).toString("hex");
   const createdAt = Date.now();
   const expiresAt = createdAt + TTL_SECONDS * 1000;
-  const safeModel = typeof model === "string" && /^retzef-[a-z0-9-]{1,80}$/.test(model)
+  const safeModel = typeof model === "string" && isSupportedModel(model)
     ? model
     : "retzef-code";
   const record = {

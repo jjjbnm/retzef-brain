@@ -1,8 +1,9 @@
 import { verifyApiKey } from "../../../brain/key-store.js";
 import { addTrainingExample, listTrainingExamples, saveModelWeights } from "../../../brain/training-store.js";
 import { trainNativeModel } from "../../chat.js";
+import { MODEL_ID_SET } from "../../../src/model-catalog.js";
 
-const allowedModels = new Set(["retzef-general", "retzef-code", "retzef-creative"]);
+const allowedModels = MODEL_ID_SET;
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");

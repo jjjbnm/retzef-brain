@@ -1,47 +1,54 @@
-const models = [
-  {
-    id: "retzef-general",
-    name: "Retzef General",
-    architecture: "General",
-    domain: "General",
-    description: "עוזר כללי לשאלות, הסברים ושיחה. מתאים את שפת התשובה לשפת המשתמש.",
-    status: "experimental",
-    owner: "Retzef",
-    pluginSupport: { protocol: "openai-tools", available: true, nativeToolCalling: false, requiresBrainOrchestrator: true }
-  },
-  {
-    id: "retzef-code",
-    name: "Retzef Code",
-    architecture: "Programming",
-    domain: "Code",
-    description: "עוזר לפיתוח תוכנה, כתיבת קוד, איתור תקלות והסברים טכניים.",
-    status: "experimental",
-    owner: "Retzef",
-    pluginSupport: { protocol: "openai-tools", available: true, nativeToolCalling: false, requiresBrainOrchestrator: true }
-  },
-  {
-    id: "retzef-creative",
-    name: "Retzef Creative",
-    architecture: "Creative",
-    domain: "Creative",
-    description: "עוזר לרעיונות, כתיבה יצירתית, תכנון ותוכן מקורי.",
-    status: "experimental",
-    owner: "Retzef",
-    pluginSupport: { protocol: "openai-tools", available: true, nativeToolCalling: false, requiresBrainOrchestrator: true }
-  }
-];
+import { MODEL_CATALOG } from "../src/model-catalog.js";
+
+const domainById = {
+  "retzef-general": "General",
+  "retzef-code": "Code",
+  "retzef-creative": "Creative"
+};
+
+const architectureById = {
+  "retzef-general": "General",
+  "retzef-code": "Programming",
+  "retzef-creative": "Creative"
+};
+
+const pluginSupport = {
+  protocol: "openai-tools",
+  available: true,
+  nativeToolCalling: false,
+  requiresBrainOrchestrator: true
+};
 
 function providerConfigured(id) {
-  const modelEnv = { "retzef-general": "RETZEF_GENERAL_MODEL", "retzef-code": "RETZEF_CODE_MODEL", "retzef-creative": "RETZEF_CREATIVE_MODEL" };
-  return Boolean(process.env.RETZEF_AI_BASE_URL && process.env.RETZEF_AI_API_KEY && (process.env[modelEnv[id]] || process.env.RETZEF_AI_MODEL));
+  const modelEnv = {
+    "retzef-general": "RETZEF_GENERAL_MODEL",
+    "retzef-code": "RETZEF_CODE_MODEL",
+    "retzef-creative": "RETZEF_CREATIVE_MODEL"
+  };
+  return Boolean(
+    process.env.RETZEF_AI_BASE_URL &&
+    process.env.RETZEF_AI_API_KEY &&
+    (process.env[modelEnv[id]] || process.env.RETZEF_AI_MODEL)
+  );
 }
 
 export default function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
+  const models = MODEL_CATALOG.map((model) => ({
+    id: model.id,
+    name: model.name,
+    architecture: architectureById[model.id] || "General",
+    domain: domainById[model.id] || "General",
+    description: model.description,
+    status: "experimental",
+    owner: "Retzef",
+    pluginSupport: { ...pluginSupport },
+    runtime: providerConfigured(model.id) ? "external-provider-configured" : "native-experimental"
+  }));
   return res.status(200).json({
     brand: "Retzef",
-    models: models.map((model) => ({ ...model, runtime: providerConfigured(model.id) ? "external-provider-configured" : "native-experimental" })),
+    models,
     count: models.length,
     pluginProtocol: "openai-tools",
     pluginProviders: ["github", "vercel", "youtube", "tiktok", "discord"]
