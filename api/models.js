@@ -1,4 +1,5 @@
 import { MODEL_CATALOG } from "../src/model-catalog.js";
+import { getProviderConfig } from "../brain/provider-adapter.js";
 
 const domainById = {
   "retzef-general": "General",
@@ -19,23 +20,20 @@ const pluginSupport = {
   requiresBrainOrchestrator: true
 };
 
-function providerConfigured(id) {
-  const modelEnv = {
-    "retzef-general": "RETZEF_GENERAL_MODEL",
-    "retzef-code": "RETZEF_CODE_MODEL",
-    "retzef-creative": "RETZEF_CREATIVE_MODEL"
+function providerRuntime(id) {
+  const config = getProviderConfig(id);
+  if (!config) return { runtime: "native-experimental", providerModel: null };
+  return {
+    runtime: config.provider === "vercel-ai-gateway" ? "vercel-ai-gateway" : "external-provider-configured",
+    providerModel: config.model
   };
-  return Boolean(
-    process.env.RETZEF_AI_BASE_URL &&
-    process.env.RETZEF_AI_API_KEY &&
-    (process.env[modelEnv[id]] || process.env.RETZEF_AI_MODEL)
-  );
 }
 
 export default function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
   const models = MODEL_CATALOG.map((model) => ({
+    ...providerRuntime(model.id),
     id: model.id,
     name: model.name,
     architecture: architectureById[model.id] || "General",

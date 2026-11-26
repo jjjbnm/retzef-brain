@@ -121,11 +121,11 @@ export async function generateRetzefResponse({ modelId, prompt, messages = null,
   if (!definitions[modelId]) throw new Error("Unknown Retzef model.");
   const userMessage = extractLatestUserMessage(prompt);
   if (!userMessage) return "שלח הודעה ואשמח לעזור. 😊";
-  const simpleReply = simpleConversationReply(userMessage);
-  if (simpleReply) return simpleReply;
-
   const providerAnswer = await generateProviderResponse({ modelId, prompt, messages, latestUser: userMessage, trainingExamples });
   if (providerAnswer) return providerAnswer;
+
+  const simpleReply = simpleConversationReply(userMessage);
+  if (simpleReply) return simpleReply;
 
   const corpus = await readBaseCorpus(modelId);
   const grounded = retrieveGroundedAnswer({
@@ -167,10 +167,16 @@ export default async function handler(req, res) {
   const prompt = typeof body?.prompt === "string" ? body.prompt.trim() : "";
   const messages = Array.isArray(body?.messages) ? body.messages : null;
   if (!definitions[modelId]) return res.status(400).json({ error: "Unknown Retzef model." });
-  if (!prompt || prompt.length > 12000) return res.status(400).json({ error: "ההודעה חייבת להכיל 1–12,000 תווים." });
+  if (!prompt || prompt.length > 100000) return res.status(400).json({ error: "ההודעה חייבת להכיל 1–100,000 תווים." });
   try {
     const answer = await generateRetzefResponse({ modelId, prompt, messages });
-    return res.status(200).json({ answer, model: names[modelId], engine: getProviderConfig(modelId) ? "retzef-provider-v1" : "retzef-grounded-retrieval-v1" });
+    const provider = getProviderConfig(modelId);
+    return res.status(200).json({
+      answer,
+      model: names[modelId],
+      engine: provider?.provider || "retzef-grounded-retrieval-v1",
+      providerModel: provider?.model || null
+    });
   } catch (error) {
     return res.status(500).json({ error: String(error?.message || "Retzef model failed").slice(0, 220) });
   }

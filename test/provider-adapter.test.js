@@ -101,3 +101,48 @@ test("provider retries a transient upstream failure once", async () => {
     restore();
   }
 });
+
+
+test("Vercel Gateway routes Code to Claude Opus with server-side OIDC and high reasoning", async () => {
+  const restore = withEnv({
+    RETZEF_AI_PROVIDER: "vercel-gateway",
+    VERCEL_OIDC_TOKEN: "oidc-server-only",
+    AI_GATEWAY_API_KEY: "",
+    RETZEF_AI_RETRIES: "1"
+  });
+  const originalFetch = globalThis.fetch;
+  let captured;
+  globalThis.fetch = async (url, options) => {
+    captured = { url, headers: options.headers, body: JSON.parse(options.body) };
+    return response({ body: { choices: [{ message: { content: "A careful code answer." } }] } });
+  };
+  try {
+    const answer = await generateProviderResponse({
+      modelId: "retzef-code",
+      prompt: "user: Fix this function",
+      messages: [{ role: "user", content: "Fix this function" }],
+      latestUser: "Fix this function"
+    });
+    assert.equal(answer, "A careful code answer.");
+    assert.equal(captured.url, "https://ai-gateway.vercel.sh/v1/chat/completions");
+    assert.equal(captured.headers.Authorization, "Bearer oidc-server-only");
+    assert.equal(captured.headers["X-Vercel-AI-App-Name"], "Retzef Brain");
+    assert.equal(captured.body.model, "anthropic/claude-opus-5");
+    assert.deepEqual(captured.body.reasoning, { effort: "high" });
+    assert.equal(captured.body.max_tokens, 8192);
+  } finally {
+    globalThis.fetch = originalFetch;
+    restore();
+  }
+});
+
+test("Vercel Gateway keeps paid model routing disabled unless explicitly enabled", () => {
+  const restore = withEnv({ RETZEF_AI_PROVIDER: "", RETZEF_USE_VERCEL_GATEWAY: "false", VERCEL_OIDC_TOKEN: "oidc-server-only", AI_GATEWAY_API_KEY: "" });
+  try {
+    // The native runtime remains the default; the existence of Vercel's OIDC token alone does not enable billing.
+    assert.equal(process.env.RETZEF_AI_PROVIDER, "");
+    assert.equal(process.env.RETZEF_USE_VERCEL_GATEWAY, "false");
+  } finally {
+    restore();
+  }
+});

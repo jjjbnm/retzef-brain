@@ -3,9 +3,9 @@ import { listTrainingExamples } from "../../brain/training-store.js";
 import { generateRetzefResponse } from "../chat.js";
 import { isSupportedModel } from "../../src/model-catalog.js";
 
-const MAX_MESSAGES = 40;
-const MAX_MESSAGE_CHARS = 8000;
-const MAX_TOTAL_CHARS = 32000;
+const MAX_MESSAGES = 50;
+const MAX_MESSAGE_CHARS = 24000;
+const MAX_TOTAL_CHARS = 100000;
 const ALLOWED_ROLES = new Set(["system", "developer", "user", "assistant"]);
 
 function readJsonBody(body) {

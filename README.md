@@ -38,3 +38,18 @@ Retzef Brain can route Retzef General, Retzef Code, and Retzef Creative through 
 - `RETZEF_CORS_ORIGIN` — optional exact browser origin for the server-to-server `/api/v1/chat` API. It is intentionally not `*` because that endpoint accepts Bearer keys.
 
 When configured, all three Retzef profiles use the provider with profile-specific quality instructions, language routing, bounded conversation history, relevant owner examples, uncertainty rules, prompt-injection defenses, and transient retry handling. Set `RETZEF_AI_MODEL` (or a profile override) to the high-quality Claude-compatible model identifier exposed by your provider. If not configured, the existing native experimental retrieval behavior remains active. Provider failures are returned as errors instead of silently pretending the native model answered. The small native neural prototypes are still experimental; Claude-like quality comes from selecting a capable upstream model and using this orchestration layer correctly.
+
+
+## Claude-class inference through Vercel AI Gateway (opt-in)
+
+Retzef Brain now includes a Claude-class runtime profile for Vercel AI Gateway. It uses Vercel's server-side `VERCEL_OIDC_TOKEN` automatically on deployed functions, so no Anthropic key is placed in the browser or committed to GitHub.
+
+To activate paid inference, set the Vercel production environment variable `RETZEF_AI_PROVIDER=vercel-gateway` and redeploy. This is intentionally not enabled automatically because upstream model usage can incur charges. The default routing is:
+
+- Retzef General → `anthropic/claude-sonnet-5`
+- Retzef Code → `anthropic/claude-opus-5` with high reasoning effort
+- Retzef Creative → `anthropic/claude-sonnet-5`
+
+Optional overrides: `RETZEF_GATEWAY_GENERAL_MODEL`, `RETZEF_GATEWAY_CODE_MODEL`, `RETZEF_GATEWAY_CREATIVE_MODEL`, or shared `RETZEF_GATEWAY_MODEL`. The existing custom provider configuration (`RETZEF_AI_BASE_URL`, `RETZEF_AI_API_KEY`, and model variables) takes precedence when complete. The native experimental retrieval path remains active until Gateway is explicitly enabled.
+
+The runtime now keeps a larger bounded conversation window, gives each model a task-specific reasoning budget, preserves recent turns, and exposes the active provider/model in `/api/models`. Gateway requests use Vercel OIDC server-side and are attributed to Retzef Brain. Model availability, usage prices, and account credits are controlled by Vercel AI Gateway; check the dashboard before enabling paid inference.
