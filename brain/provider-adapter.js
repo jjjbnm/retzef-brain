@@ -11,7 +11,8 @@
 const MODEL_ENV = {
   "retzef-general": "RETZEF_GENERAL_MODEL",
   "retzef-code": "RETZEF_CODE_MODEL",
-  "retzef-creative": "RETZEF_CREATIVE_MODEL"
+  "retzef-creative": "RETZEF_CREATIVE_MODEL",
+  "retzef-mini": "RETZEF_MINI_MODEL"
 };
 
 const MODEL_PROFILES = {
@@ -45,12 +46,23 @@ const MODEL_PROFILES = {
     temperature: 0.72,
     maxTokens: 4096,
     reasoningEffort: "medium",
-    role: "You are Retzef Fable, a specialist in storytelling, fiction, and imaginative world-building.",
+    role: "You are Retzef Creative, a specialist in storytelling, fiction, and imaginative world-building.",
     guidance: [
       "Build coherent stories with engaging plots, believable characters, meaningful conflict, and satisfying structure.",
       "Create consistent fictional worlds with clear rules, places, cultures, and histories.",
       "Write natural dialogue and scripts that match the requested genre, audience, and tone.",
       "Keep creative details consistent across long stories and develop ideas into usable outlines or scenes."
+    ]
+  },
+  "retzef-mini": {
+    temperature: 0.3,
+    maxTokens: 2048,
+    reasoningEffort: "low",
+    role: "You are Retzef Mini, a fast and concise assistant for simple everyday tasks.",
+    guidance: [
+      "Answer directly and briefly, without unnecessary detail.",
+      "Summarize long material into the most important points.",
+      "For complex or high-stakes requests, clearly say when a more capable model or verification is needed."
     ]
   }
 };
@@ -96,14 +108,16 @@ function getProviderModel(modelId) {
 const GATEWAY_MODELS = Object.freeze({
   "retzef-general": "anthropic/claude-sonnet-5",
   "retzef-code": "anthropic/claude-opus-5",
-  "retzef-creative": "anthropic/claude-sonnet-5"
+  "retzef-creative": "anthropic/claude-sonnet-5",
+  "retzef-mini": "anthropic/claude-haiku-5"
 });
 
 function getGatewayModel(modelId) {
   const perModel = {
     "retzef-general": "RETZEF_GATEWAY_GENERAL_MODEL",
     "retzef-code": "RETZEF_GATEWAY_CODE_MODEL",
-    "retzef-creative": "RETZEF_GATEWAY_CREATIVE_MODEL"
+    "retzef-creative": "RETZEF_GATEWAY_CREATIVE_MODEL",
+    "retzef-mini": "RETZEF_GATEWAY_MINI_MODEL"
   };
   return String(process.env[perModel[modelId]] || process.env.RETZEF_GATEWAY_MODEL || GATEWAY_MODELS[modelId] || "").trim();
 }

@@ -4,13 +4,15 @@ import { getProviderConfig } from "../brain/provider-adapter.js";
 const domainById = {
   "retzef-general": "General",
   "retzef-code": "Code",
-  "retzef-creative": "Creative"
+  "retzef-creative": "Creative",
+  "retzef-mini": "Mini"
 };
 
 const architectureById = {
   "retzef-general": "General",
   "retzef-code": "Programming",
-  "retzef-creative": "Creative"
+  "retzef-creative": "Creative",
+  "retzef-mini": "General"
 };
 
 const pluginSupport = {
@@ -39,10 +41,11 @@ export default function handler(req, res) {
     ...provider,
     id: model.id,
     name: model.name,
+    version: model.version,
     architecture: architectureById[model.id] || "General",
     domain: domainById[model.id] || "General",
     description: model.description,
-    status: providerRuntime(model.id).inferenceStatus,
+    status: provider.inferenceStatus,
     owner: "Retzef",
     pluginSupport: { ...pluginSupport },
     runtime: provider.runtime
