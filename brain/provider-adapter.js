@@ -261,7 +261,7 @@ function providerPayload(modelId, config, messages, latestUser, trainingExamples
   const profile = MODEL_PROFILES[modelId] || MODEL_PROFILES["retzef-general"];
   const configuredMax = Number(process.env.RETZEF_AI_MAX_TOKENS);
   const maxTokens = Number.isFinite(configuredMax) && configuredMax >= 256
-    ? Math.min(4096, Math.floor(configuredMax))
+    ? Math.min(16384, Math.floor(configuredMax))
     : profile.maxTokens;
   return {
     model: config.model,

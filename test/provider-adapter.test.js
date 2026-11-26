@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildSystemInstruction, generateProviderResponse } from "../brain/provider-adapter.js";
+import { buildSystemInstruction, generateProviderResponse, getProviderConfig } from "../brain/provider-adapter.js";
 
 function response({ status = 200, body = {}, detail = "" } = {}) {
   return {
@@ -142,6 +142,7 @@ test("Vercel Gateway keeps paid model routing disabled unless explicitly enabled
     // The native runtime remains the default; the existence of Vercel's OIDC token alone does not enable billing.
     assert.equal(process.env.RETZEF_AI_PROVIDER, "");
     assert.equal(process.env.RETZEF_USE_VERCEL_GATEWAY, "false");
+    assert.equal(getProviderConfig("retzef-general"), null);
   } finally {
     restore();
   }

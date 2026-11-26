@@ -22,10 +22,11 @@ const pluginSupport = {
 
 function providerRuntime(id) {
   const config = getProviderConfig(id);
-  if (!config) return { runtime: "native-experimental", providerModel: null };
+  if (!config) return { runtime: "native-experimental", providerModel: null, inferenceStatus: "experimental" };
   return {
     runtime: config.provider === "vercel-ai-gateway" ? "vercel-ai-gateway" : "external-provider-configured",
-    providerModel: config.model
+    providerModel: config.model,
+    inferenceStatus: "active"
   };
 }
 
@@ -39,7 +40,7 @@ export default function handler(req, res) {
     architecture: architectureById[model.id] || "General",
     domain: domainById[model.id] || "General",
     description: model.description,
-    status: "experimental",
+    status: providerRuntime(model.id).inferenceStatus,
     owner: "Retzef",
     pluginSupport: { ...pluginSupport },
     runtime: providerConfigured(model.id) ? "external-provider-configured" : "native-experimental"
