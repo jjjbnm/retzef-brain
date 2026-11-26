@@ -8,7 +8,34 @@ $("tsCode").addEventListener("input",lineCount);
 $("tsCode").addEventListener("scroll",()=>{$("lineNumbers").scrollTop=$("tsCode").scrollTop});
 $("tsCode").addEventListener("keydown",e=>{if(e.key==="Tab"){e.preventDefault();const t=e.target,s=t.selectionStart,en=t.selectionEnd;t.value=t.value.slice(0,s)+"  "+t.value.slice(en);t.selectionStart=t.selectionEnd=s+2;lineCount()}if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){e.preventDefault();runTs()}});
 lineCount();
-async function loadModels(){try{const r=await fetch("/api/models");if(!r.ok)throw Error("API models unavailable");const d=await r.json();$("modelCount").textContent=d.count??d.models?.length??"—";const models=d.models||[];const picker=$("modelSelect");if(picker){picker.innerHTML=models.map(m=>'<option value="'+escapeHtml(m.id)+'">'+escapeHtml(m.name)+' · '+escapeHtml(m.domainLabel||m.domain||"")+'</option>').join("");if(!models.some(m=>m.id==="retzef-code"))picker.value=models[0]?.id||"";updateSelectedModel(models)}const testPicker=$("testModelSelect");if(testPicker){const previous=testPicker.value;testPicker.innerHTML=models.map(m=>'<option value="'+escapeHtml(m.id)+'">'+escapeHtml(m.name)+'</option>').join("");testPicker.value=models.some(m=>m.id===previous)?previous:(picker?.value||models[0]?.id||"");updateTestModelStatus()}$("modelsGrid").innerHTML=models.map((m,i)=>'<article class="model-card"><div class="model-top"><span class="model-symbol">'+(i+1)+'</span><span class="model-tag">RETZEF ORIGINAL</span></div><h3>'+escapeHtml(m.name)+'</h3><p>'+escapeHtml(m.description)+'</p><div class="model-foot"><span>'+escapeHtml(m.architectureLabel||m.architecture||"Experimental")+'</span><button data-model="'+escapeHtml(m.id)+'">בחר מודל ↗</button></div></article>').join("");document.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{if(picker){picker.value=b.dataset.model;updateSelectedModel(models)}location.hash="home";$("keyName").value="Retzef "+b.dataset.model})}catch(e){$("modelsGrid").innerHTML='<div class="skeleton">לא ניתן לטעון את קטלוג המודלים כרגע.</div>'}}
+async function loadModels(){
+  const picker=$("modelSelect"),testPicker=$("testModelSelect"),grid=$("modelsGrid");
+  const setLoading=()=>{if(picker)picker.innerHTML='<option value="">טוען מודלים…</option>';if(testPicker)testPicker.innerHTML='<option value="">טוען מודלים…</option>';if(grid)grid.innerHTML='<div class="skeleton">טוען את קטלוג המודלים…</div>';};
+  setLoading();
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),12000);
+  try{
+    const r=await fetch("/api/models?ts="+Date.now(),{cache:"no-store",credentials:"same-origin",signal:controller.signal,headers:{Accept:"application/json"}});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(d.error||"שרת המודלים החזיר שגיאה (HTTP "+r.status+")");
+    if(!Array.isArray(d.models)||!d.models.length)throw new Error("שרת המודלים לא החזיר מודלים זמינים");
+    const models=d.models.filter(m=>m&&typeof m.id==="string"&&typeof m.name==="string");
+    if(!models.length)throw new Error("רשימת המודלים שהתקבלה אינה תקינה");
+    $("modelCount").textContent=d.count??models.length;
+    if(picker){const previous=picker.value;picker.innerHTML=models.map(m=>'<option value="'+escapeHtml(m.id)+'">'+escapeHtml(m.name)+' · '+escapeHtml(m.domainLabel||m.domain||"")+'</option>').join("");picker.value=models.some(m=>m.id===previous)?previous:(models.find(m=>m.id==="retzef-code")?.id||models[0].id);updateSelectedModel(models);}
+    if(testPicker){const previous=testPicker.value;testPicker.innerHTML=models.map(m=>'<option value="'+escapeHtml(m.id)+'">'+escapeHtml(m.name)+'</option>').join("");testPicker.value=models.some(m=>m.id===previous)?previous:(picker?.value||models[0].id);updateTestModelStatus();}
+    grid.innerHTML=models.map((m,i)=>'<article class="model-card"><div class="model-top"><span class="model-symbol">'+(i+1)+'</span><span class="model-tag">RETZEF MODEL</span></div><h3>'+escapeHtml(m.name)+'</h3><p>'+escapeHtml(m.description||"")+'</p><div class="model-foot"><span>'+escapeHtml(m.architectureLabel||m.architecture||"Experimental")+'</span><button data-model="'+escapeHtml(m.id)+'">בחר מודל ↗</button></div></article>').join("");
+    grid.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{if(picker){picker.value=b.dataset.model;updateSelectedModel(models)}location.hash="home";$("keyName").value="Retzef "+b.dataset.model});
+  }catch(e){
+    const message=e.name==="AbortError"?"הטעינה ארכה יותר מדי. בדקו את החיבור ונסו שוב.":(e.message||"לא ניתן לטעון את המודלים כרגע.");
+    if(picker)picker.innerHTML='<option value="">המודלים לא נטענו</option>';
+    if(testPicker)testPicker.innerHTML='<option value="">המודלים לא נטענו</option>';
+    if(grid)grid.innerHTML='<div class="skeleton model-load-error"><b>לא הצלחנו לטעון את המודלים</b><p>'+escapeHtml(message)+'</p><button type="button" id="retryModels" class="btn ghost">נסה שוב ↻</button></div>';
+    if($("selectedModelInfo"))$("selectedModelInfo").textContent=message;
+    const retry=$("retryModels");if(retry)retry.onclick=loadModels;
+    console.error("Retzef model catalog load failed:",e);
+  }finally{clearTimeout(timeout);}
+}
 let availableModels=[];function updateSelectedModel(models=availableModels){availableModels=models;const id=$("modelSelect")?.value;const model=models.find(m=>m.id===id);if($("selectedModelInfo"))$("selectedModelInfo").textContent=model?model.description+" · "+(model.architectureLabel||model.architecture)+" · ניסיוני":"בחר מודל מהרשימה"}$("modelSelect")?.addEventListener("change",()=>updateSelectedModel());
 const testHistory=[];function updateTestModelStatus(){const picker=$("testModelSelect");if(!picker)return;const model=availableModels.find(m=>m.id===picker.value);$("testModelStatus").textContent=model?"נבחר: "+model.name+" · "+(model.architectureLabel||model.architecture||"מודל ניסיוני")+" · מוכן לבדיקה":"בחרו מודל כדי להתחיל"}
 $("testModelSelect")?.addEventListener("change",()=>{testHistory.length=0;renderTestChat();updateTestModelStatus()});

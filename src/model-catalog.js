@@ -19,8 +19,8 @@ export const MODEL_CATALOG = [
   },
   {
     id: "retzef-creative",
-    name: "Retzef Creative",
-    description: "Creative writing, ideation, and planning assistant.",
+    name: "Retzef Fable",
+    description: "Storytelling and world-building assistant for plots, characters, dialogue, scripts, and imaginative ideas.",
     corpus: "retzef-creative.txt",
     architecture: "ngram",
     order: 4,

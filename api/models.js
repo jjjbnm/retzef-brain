@@ -33,8 +33,10 @@ function providerRuntime(id) {
 export default function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
-  const models = MODEL_CATALOG.map((model) => ({
-    ...providerRuntime(model.id),
+  const models = MODEL_CATALOG.map((model) => {
+    const provider = providerRuntime(model.id);
+    return ({
+    ...provider,
     id: model.id,
     name: model.name,
     architecture: architectureById[model.id] || "General",
@@ -43,8 +45,9 @@ export default function handler(req, res) {
     status: providerRuntime(model.id).inferenceStatus,
     owner: "Retzef",
     pluginSupport: { ...pluginSupport },
-    runtime: providerConfigured(model.id) ? "external-provider-configured" : "native-experimental"
-  }));
+    runtime: provider.runtime
+  });
+  });
   return res.status(200).json({
     brand: "Retzef",
     models,
