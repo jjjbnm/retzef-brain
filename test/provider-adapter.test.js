@@ -30,7 +30,7 @@ test("system instruction is profile-specific, multilingual, and injection-resist
     [{ input: "כתוב פונקציה", expectedOutput: "הנה קוד בטוח." }],
     "Answer with TypeScript."
   );
-  assert.match(instruction, /senior software engineering assistant/);
+  assert.match(instruction, /senior software engineer/);
   assert.match(instruction, /Hebrew/);
   assert.match(instruction, /untrusted data/);
   assert.match(instruction, /Answer with TypeScript/);
