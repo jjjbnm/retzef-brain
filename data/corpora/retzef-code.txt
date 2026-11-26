@@ -83,3 +83,44 @@ try {
 } catch (error) {
   console.error(error);
 }
+
+
+// Full-stack project engineering examples
+User: How should you build a complete website?
+Assistant[en]: First identify the audience, pages, content, and success criteria. Inspect the existing stack if this is an existing project. Build reusable responsive components, accessible navigation, validated forms, secure server routes where needed, and a clear deployment configuration. Include the file tree, dependencies, setup commands, and tests. Do not claim deployment until it is verified.
+User: How do you debug a website that shows a blank page?
+Assistant[en]: Check the browser console and network requests first. Identify the first failing module, route, or asset; inspect the build output and recent changes; reproduce the issue; then fix the root cause and verify the affected route plus related flows. Do not guess from the screenshot alone.
+User: How do you build a secure API?
+Assistant[en]: Validate every input on the server, authenticate the caller, authorize each resource access, rate-limit sensitive endpoints, keep secrets in server environment variables, return safe error messages, and add tests for invalid input and unauthorized access.
+User: How should a mobile app layout work?
+Assistant[en]: Start with small-screen layouts, use flexible constraints instead of fixed widths, provide touch-sized controls, handle loading and empty states, respect safe areas, and test multiple screen sizes and orientations.
+User: How do you fix a bug in an existing repository?
+Assistant[en]: Read the relevant files and project scripts, reproduce the bug, trace the failing data or control flow, make the smallest compatible change, add a regression test, run the focused test and build, and report exactly what was verified.
+User: How do you prepare a Vercel deployment?
+Assistant[en]: Verify the framework build command and output, inspect environment-variable names without exposing secret values, confirm the project and target environment, run tests and a production build, deploy only with approval, then verify the deployment state and critical routes.
+User: How do you work with GitHub safely?
+Assistant[en]: Inspect the repository and current branch first. Read relevant files before editing, keep changes focused, avoid committing secrets, review the diff, run tests, and request approval before pushing or merging changes that affect the user's project.
+User: How do you plan an Unreal Engine feature?
+Assistant[en]: Confirm the Unreal Engine version and whether the project uses Blueprints, C++, or both. Identify the target Actor, Component, subsystem, or module; define inputs, state, events, and failure cases; then implement a small vertical slice and validate it in the editor and build pipeline.
+User: What should an Unreal Engine C++ bug report include?
+Assistant[en]: Include the engine version, target platform, relevant class and module, compiler or Unreal Build Tool output, reproduction steps, expected behavior, actual behavior, and the smallest relevant code excerpt. Never invent engine APIs when the version is unknown.
+User: How do you plan a game prototype?
+Assistant[en]: Define the core gameplay loop, player controls, game state, win and loss conditions, target platform, and minimum playable scope. Build one complete loop first, then add menus, saving, audio, accessibility, and polish in tested milestones.
+User: How do you review a plugin integration?
+Assistant[en]: Check the provider manifest, tool names and JSON schemas, authentication scopes, server-side credential storage, authorization boundaries, rate limits, timeout behavior, error mapping, and whether write actions require explicit approval. A catalog entry is not proof that the provider is connected.
+User: How should a coding agent task be written?
+Assistant[en]: State the goal, repository context, relevant files, constraints, acceptance criteria, tests to run, and actions that require approval. Ask the agent to inspect before editing and report changed files and verification evidence.
+
+// Hebrew engineering examples
+User: איך בונים אתר מלא?
+Assistant[he]: מתחילים בהבנת המטרה והעמודים, בודקים את הטכנולוגיות הקיימות, בונים רכיבים רספונסיביים ונגישים, מוסיפים טפסים מאומתים ושרת מאובטח לפי הצורך, ומספקים מבנה קבצים, הוראות התקנה ובדיקות. לא טוענים שהאתר פורסם בלי אימות.
+User: איך מתקנים באג בפרויקט קיים?
+Assistant[he]: קודם בודקים את הקבצים הרלוונטיים ואת פקודות הפרויקט, מנסים לשחזר את התקלה, עוקבים אחרי מקור השגיאה, מתקנים את הסיבה ולא רק את הסימפטום, מוסיפים בדיקת רגרסיה ומריצים בדיקות ממוקדות. מדווחים בדיוק מה נבדק.
+User: איך בונים אפליקציה?
+Assistant[he]: מגדירים פלטפורמה ודרישות, מתכננים מסכים וניווט, בונים ממשק שמתאים למסכים קטנים, מוסיפים ניהול מצב, אחסון והרשאות לפי הצורך, ומוודאים טיפול במצבי טעינה, שגיאה והיעדר נתונים.
+User: איך מתכננים משחק ב-Unreal Engine?
+Assistant[he]: מבררים את גרסת המנוע ואת הבחירה בין Blueprints ל-C++, מגדירים את לולאת המשחק, השחקן, המצב ותנאי הניצחון, ואז בונים אבטיפוס קטן שניתן להריץ ולבדוק לפני שמוסיפים מערכות נוספות.
+User: איך מחברים Plugin בצורה מאובטחת?
+Assistant[he]: משתמשים בסכמת כלים מוגדרת, בהרשאות המינימליות הדרושות ובאימות בצד השרת. סודות נשמרים רק בסביבת השרת. פעולות כתיבה, פריסה או מחיקה דורשות אישור מפורש. תוסף שמופיע בקטלוג לא בהכרח מחובר.
+User: איך בודקים תיקון?
+Assistant[he]: מריצים בדיקה שמדמה את התקלה המקורית, בדיקות למקרי קצה, בדיקות הרשאות ובדיקות בנייה רלוונטיות. מפרידים בין בדיקה סטטית לבין הרצה אמיתית ומדווחים אם משהו לא הורץ.

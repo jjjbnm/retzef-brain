@@ -33,7 +33,7 @@ Retzef Brain can route Retzef General, Retzef Code, and Retzef Creative through 
 - `RETZEF_AI_MODEL` — shared model ID (optional if all three model-specific IDs are set).
 - `RETZEF_GENERAL_MODEL`, `RETZEF_CODE_MODEL`, `RETZEF_CREATIVE_MODEL` — optional per-model overrides.
 - `RETZEF_AI_TIMEOUT_MS` — optional request timeout (10,000–90,000 ms; default 45,000).
-- `RETZEF_AI_MAX_TOKENS` — optional visible-output cap (256–4,096; otherwise profile defaults are used).
+- `RETZEF_AI_MAX_TOKENS` — optional visible-output cap (256–16,384; otherwise profile defaults are used).
 - `RETZEF_AI_RETRIES` — optional transient-failure retry count (1–3; default 2).
 - `RETZEF_CORS_ORIGIN` — optional exact browser origin for the server-to-server `/api/v1/chat` API. It is intentionally not `*` because that endpoint accepts Bearer keys.
 
@@ -53,3 +53,16 @@ To activate paid inference, set the Vercel production environment variable `RETZ
 Optional overrides: `RETZEF_GATEWAY_GENERAL_MODEL`, `RETZEF_GATEWAY_CODE_MODEL`, `RETZEF_GATEWAY_CREATIVE_MODEL`, or shared `RETZEF_GATEWAY_MODEL`. The existing custom provider configuration (`RETZEF_AI_BASE_URL`, `RETZEF_AI_API_KEY`, and model variables) takes precedence when complete. The native experimental retrieval path remains active until Gateway is explicitly enabled.
 
 The runtime now keeps a larger bounded conversation window, gives each model a task-specific reasoning budget, preserves recent turns, and exposes the active provider/model in `/api/models`. Gateway requests use Vercel OIDC server-side and are attributed to Retzef Brain. Model availability, usage prices, and account credits are controlled by Vercel AI Gateway; check the dashboard before enabling paid inference.
+
+
+## Retzef Code — software and game engineering profile
+
+Retzef Code is configured as the software-engineering specialist. Its instructions cover complete website, app, API, desktop-software, and game-project workflows; repository inspection; debugging and root-cause analysis; tests; security; deployment planning; Unreal Engine Blueprints/C++; and coding-agent task preparation.
+
+### Extensible plugin catalog
+
+The plugin catalog is designed to grow by provider manifests rather than hard-coding a fixed number of integrations. Retzef Code also has an expanded original engineering corpus for project planning, debugging, secure APIs, mobile layouts, Vercel/GitHub workflows, Unreal Engine, and plugin integration. It currently describes GitHub, Vercel, YouTube, TikTok, Discord, Retzef Engine, Unreal Engine project-bridge workflows, and Codex task/review workflows. `GET /api/plugins` lists providers and `GET /api/plugin-tools?providers=github,vercel` returns OpenAI-compatible tool definitions.
+
+**Connection status:** listing a provider or tool does not mean its external connector is live. User OAuth, project bridges, and server-side execution adapters must be configured before external actions can run. Until then, external execution returns an explicit connection-required response; no fake success is returned. The catalog is extensible to thousands of manifest-defined plugins, but this commit does not claim that thousands of integrations are already installed or connected.
+
+External write operations, deployment actions, and repository mutations must use least-privilege permissions and explicit user approval. Secrets remain server-side.

@@ -21,12 +21,28 @@ export const PLUGIN_PROVIDERS=[
   {name:"tiktok_get_my_profile",description:"Get profile and statistics for the connected TikTok account only.",parameters:obj({includeStats:{type:"boolean",description:"Include follower, following, likes and video counts."}})},
   {name:"tiktok_list_my_videos",description:"List the connected user's public TikTok videos. Does not publish content.",parameters:obj({maxCount:num("Maximum videos.",1,20)})}
  ]},
+
+ {id:"retzef-engine",name:"Retzef Engine",description:"כלי פיתוח של Retzef Engine: פרויקטים, APIs, מודלים, תוספים וסביבת הרצה.",category:"development-platform",capabilities:["project-development","api-integration","plugin-development","debugging"],auth:{type:"oauth",scopes:["projects.read","projects.write"]},tools:[
+  {name:"retzef_engine_get_project",description:"Get metadata for a Retzef Engine project available to the connected user.",parameters:obj({projectId:str("Retzef Engine project identifier.")},["projectId"]),readOnly:true},
+  {name:"retzef_engine_list_plugins",description:"List plugins available to a Retzef Engine project.",parameters:obj({projectId:str("Retzef Engine project identifier.")},["projectId"]),readOnly:true},
+  {name:"retzef_engine_inspect_api",description:"Inspect documented API capabilities for a Retzef Engine project.",parameters:obj({projectId:str("Retzef Engine project identifier."),path:str("Optional documented API path.")},["projectId"]),readOnly:true}
+ ]},
+ {id:"unreal-engine",name:"Unreal Engine",description:"תכנון ופיתוח משחקים ב-Unreal Engine עם Blueprints, C++, מערכות Gameplay ופתרון תקלות.",category:"game-development",capabilities:["game-projects","blueprints","cpp","build-debugging"],auth:{type:"project-bridge",scopes:["project.read","project.write"]},tools:[
+  {name:"unreal_engine_inspect_project",description:"Inspect an Unreal Engine project structure and engine version through an authorized project bridge.",parameters:obj({projectPath:str("Authorized project path or workspace handle.")},["projectPath"]),readOnly:true},
+  {name:"unreal_engine_review_build",description:"Review Unreal Build Tool or compiler log text and identify likely build issues.",parameters:obj({log:str("Build or compiler output, up to 20,000 characters.")},["log"]),readOnly:true},
+  {name:"unreal_engine_plan_feature",description:"Create an implementation plan for an Unreal Engine gameplay or editor feature.",parameters:obj({goal:str("Feature description."),engineVersion:str("Unreal Engine version, if known."),language:{type:"string",enum:["blueprints","cpp","both"],description:"Preferred implementation approach."}},["goal"]),readOnly:true}
+ ]},
+ {id:"codex",name:"Codex",description:"הכנת משימות Codex, הוראות AGENTS.md, סקירת diffs ותכנון עבודת coding agent.",category:"coding-agent",capabilities:["agent-task-design","repository-instructions","code-review","test-planning"],auth:{type:"none",scopes:[]},tools:[
+  {name:"codex_prepare_task",description:"Turn a software request into a precise, testable Codex coding task.",parameters:obj({goal:str("Desired engineering outcome."),repository:str("Repository name or path, if known."),constraints:str("Important constraints and acceptance criteria.")},["goal"]),readOnly:true},
+  {name:"codex_create_agent_instructions",description:"Draft repository-specific AGENTS.md instructions for a coding agent.",parameters:obj({stack:str("Project stack and conventions."),commands:str("Known test, lint, and build commands."),rules:str("Project-specific rules.")},["stack"]),readOnly:true},
+  {name:"codex_review_change",description:"Review a supplied diff for correctness, regressions, security, and missing tests.",parameters:obj({diff:str("Unified diff text."),context:str("Relevant project context.")},["diff"]),readOnly:true}
+ ]},
  {id:"discord",name:"Discord",description:"קריאת פרטי המשתמש ורשימת השרתים שבהם הוא חבר.",auth:{type:"oauth",scopes:["identify","guilds"]},tools:[
   {name:"discord_get_my_user",description:"Get the connected Discord user's profile.",parameters:obj({})},
   {name:"discord_list_my_servers",description:"List Discord servers the connected user belongs to.",parameters:obj({limit:num("Maximum servers.",1,100)})}
  ]}
 ];
-export function getPluginCatalog(){return PLUGIN_PROVIDERS.map(p=>({...p,connection:{status:"not_connected",mode:"user_oauth"},tools:p.tools.map(t=>({...t,readOnly:true,requiresApproval:false}))}));}
+export function getPluginCatalog(){return PLUGIN_PROVIDERS.map(p=>({...p,category:p.category||"productivity",capabilities:p.capabilities||[],connection:{status:"not_connected",mode:p.auth?.type||"user_oauth"},tools:p.tools.map(t=>({...t,readOnly:t.readOnly!==false,requiresApproval:Boolean(t.requiresApproval)}))}));}
 export function getOpenAIToolDefinitions(providerIds=[]){
  const selected=new Set(providerIds);
  return PLUGIN_PROVIDERS.filter(p=>selected.has(p.id)).flatMap(p=>p.tools.map(t=>({type:"function",function:{name:t.name,description:t.description,parameters:t.parameters}})));

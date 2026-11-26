@@ -1,5 +1,6 @@
 import { MODEL_CATALOG } from "../src/model-catalog.js";
 import { getProviderConfig } from "../brain/provider-adapter.js";
+import { PLUGIN_PROVIDERS } from "../brain/plugins/catalog.js";
 
 const domainById = {
   "retzef-general": "General",
@@ -18,6 +19,8 @@ const architectureById = {
 const pluginSupport = {
   protocol: "openai-tools",
   available: true,
+  catalogAvailable: true,
+  executionConfigured: false,
   nativeToolCalling: false,
   requiresBrainOrchestrator: true
 };
@@ -56,6 +59,7 @@ export default function handler(req, res) {
     models,
     count: models.length,
     pluginProtocol: "openai-tools",
-    pluginProviders: ["github", "vercel", "youtube", "tiktok", "discord"]
+    pluginProviders: PLUGIN_PROVIDERS.map((provider) => provider.id),
+    pluginProviderCount: PLUGIN_PROVIDERS.length
   });
 }
