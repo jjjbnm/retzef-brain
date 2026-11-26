@@ -19,7 +19,7 @@ export async function trainAllModels({ dataDir = "data/corpora", modelsDir = "mo
     const corpusPath = path.join(dataDir, definition.corpus);
     const corpus = await readFile(corpusPath, "utf8");
     const model = new RetzefNgramModel({
-      order: definition.order,
+      order: definition.trainingOrder ?? 3,
       maxTokens: definition.maxTokens
     });
     const stats = model.train(corpus);
